@@ -1,0 +1,402 @@
+matlab数据读取与存入详解
+matlab数据读取与存入详解
+在编写一个程序时，经常需要从外部读入数据，或者将程序运行的结果保存为文件。MATLAB使用多种格式打开和保存数据。本章将要介绍 MATLAB中文件的读写和数据的导入导出。
+ 
+13.1 数据基本操作
+　　本节介绍基本的数据操作，包括工作区的保存、导入和文件打开。
+13.1.1 文件的存储
+　　MATLAB支持工作区的保存。用户可以将工作区或工作区中的变量以文件的形式保存，以备在需要时再次导入。保存工作区可以通过菜单进行，也可以通过命令窗口进行。
+　　1. 保存整个工作区
+　　选择File菜单中的Save Workspace As…命令，或者单击工作区浏览器工具栏中的Save，可以将工作区中的变量保存为MAT文件。
+　　2. 保存工作区中的变量
+　　在工作区浏览器中，右击需要保存的变量名，选择Save As…，将该变量保存为MAT文件。
+　　3. 利用save命令保存
+　　该命令可以保存工作区，或工作区中任何指定文件。该命令的调用格式如下：
+● save：将工作区中的所有变量保存在当前工作区中的文件中，文件名为 matlab.mat，MAT文件可以通过load函数再次导入工作区，MAT函数可以被不同的机器导入，甚至可以通过其他的程序调用。
+● save('filename')：将工作区中的所有变量保存为文件，文件名由filename指定。如果filename中包含路径，则将文件保存在相应目录下，否则默认路径为当前路径。
+● save('filename', 'var1', 'var2', ...)：保存指定的变量在 filename 指定的文件中。
+● save('filename', '-struct', 's')：保存结构体s中全部域作为单独的变量。
+● save('filename', '-struct', 's', 'f1', 'f2', ...)：保存结构体s中的指定变量。
+● save('-regexp', expr1, expr2, ...)：通过正则表达式指定待保存的变量需满足的条件。
+● save('..., 'format')，指定保存文件的格式，格式可以为MAT文件、ASCII文件等。
+13.1.2 数据导入
+　　MATLAB中导入数据通常由函数load实现，该函数的用法如下：
+● load：如果matlab.mat文件存在，导入matlab.mat中的所有变量，如果不存在，则返回error。
+● load filename：将filename中的全部变量导入到工作区中。
+● load filename X Y Z ...：将filename中的变量X、Y、Z等导入到工作区中，如果是MAT文件，在指定变量时可以使用通配符“*”。
+● load filename -regexp expr1 expr2 ...：通过正则表达式指定需要导入的变量。
+● load -ascii filename：无论输入文件名是否包含有扩展名，将其以ASCII格式导入；如果指定的文件不是数字文本，则返回error。
+● load -mat filename：无论输入文件名是否包含有扩展名，将其以mat格式导入；如果指定的文件不是MAT文件，则返回error。
+例13-1 将文件matlab.map中的变量导入到工作区中。
+　　首先应用命令whos –file查看该文件中的内容：
+　　>>whos -file matlab.mat
+　　 Name                  Size              Bytes Class
+　　 A                    2x3              48 double array
+　　 I_q                 415x552x3            687240 uint8 array
+　　 ans                1x3               24 double array
+　　 num_of_cluster       1x1               8 double array
+　　Grand total is 687250 elements using 687320 bytes
+　　将该文件中的变量导入到工作区中：
+　　>> load matlab.mat
+　　该命令执行后，可以在工作区浏览器中看见这些变量，如图13-1所示。
+ 
+图13-1 导入变量后的工作区视图
+　　接下来用户可以访问这些变量。
+　　>>num_of_cluster
+　　num_of_cluster =
+　　     3
+　　MATLAB中，另一个导入数据的常用函数为importdata，该函数的用法如下：
+● importdata('filename')，将filename中的数据导入到工作区中；
+● A = importdata('filename')，将filename中的数据导入到工作区中，并保存为变量A；
+● importdata('filename','delimiter')，将filename中的数据导入到工作区中，以delimiter指定的符号作为分隔符；
+例13-2 从文件中导入数据。
+　　>>imported_data = importdata('matlab.mat')
+　　imported_data =
+　　               ans: [1.1813 1.0928 1.6534]
+　　                 A: [2x3 double]
+　　               I_q: [415x552x3 uint8]
+　　    num_of_cluster: 3
+　　与load函数不同，importdata将文件中的数据以结构体的方式导入到工作区中。
+13.1.3 文件的打开
+　　MATLAB中可以使用open命令打开各种格式的文件，MATLAB自动根据文件的扩展名选择相应的编辑器。
+   需要注意的是open('filename.mat')和load('filename.mat')的不同，前者将filename.mat以结构体的方式打开在工作区中，后者将文件中的变量导入到工作区中，如果需要访问其中的内容，需要以不同的格式进行。
+ 
+例13-3 open与load的比较。
+　　>>clear
+　　>> A = magic(3);
+　　>> B = rand(3);
+　　>> save
+　　Saving to: matlab.mat
+　　>>clear
+　　>>load('matlab.mat')
+　　>> A
+　　A =
+　　     8     1     6
+　　     3     5     7
+　　     4     9     2
+　　>> B
+　　B =
+　　    0.9501    0.4860    0.4565
+　　    0.2311    0.8913    0.0185
+　　    0.6068    0.7621    0.8214
+　　>>clear
+　　>>open('matlab.mat')
+　　ans =
+　　    A: [3x3 double]
+　　    B: [3x3 double]
+　　>> struc1=ans;
+　　>> struc1.A
+　　ans =
+　　     8     1     6
+　　     3     5     7
+　　     4     9     2
+　　>> struc1.B
+　　ans =
+　　    0.9501    0.4860    0.4565
+　　    0.2311    0.8913    0.0185
+　　    0.6068    0.7621    0.8214
+13.2 文本文件的读写
+　　在上一节中介绍的函数和命令主要用于读写mat文件，而在应用中，需要读写更多格式的文件，如文本文件、word文件、xml文件、xls文件、图像文件和音视频文件等。本节介绍文本文件(txt)的读写。其他文件的读写，用户可以参考MATLAB帮助文档。
+　　MATLAB中实现文本文件读写的函数如表13-1所示。
+表13-1 MATLAB中文本文件读写函数
+函    数       功    能
+csvread   读入以逗号分隔的数据
+csvwrite   将数据写入文件，数据间以逗号分隔
+dlmread   将以 ASCII 码分隔的数值数据读入到矩阵中
+dlmwrite    将矩阵数据写入到文件中，以 ASCII 分隔
+textread   从文本文件中读入数据，将结果分别保存
+textscan   从文本文件中读入数据，将结果保存为单元数组
+　　
+下面详细介绍这些函数。
+1. csvread、csvwrite
+csvread函数的调用格式如下：
+● M = csvread('filename')，将文件filename中的数据读入，并且保存为M，filename中只能包含数字，并且数字之间以逗号分隔。M是一个数组，行数与filename的行数相同，列数为filename列的最大值，对于元素不足的行，以0补充。
+● M = csvread('filename', row, col)，读取文件filename中的数据，起始行为row，起始列为col，需要注意的是，此时的行列从0开始。
+● M = csvread('filename', row, col, range)，读取文件filename 中的数据，起始行为 row，起始列为col，读取的数据由数组 range 指定，range 的格式为：[R1 C1 R2 C2]，其中R1、C1为读取区域左上角的行和列，R2、C2为读取区域右下角的行和列。
+csvwrite 函数的调用格式如下：
+● csvwrite('filename',M)，将数组M中的数据保存为文件filename，数据间以逗号分隔。
+● csvwrite('filename',M,row,col)，将数组M中的指定数据保存在文件中，数据由参数 row和col指定，保存row和col右下角的数据。
+● csvwrite写入数据时每一行以换行符结束。另外，该函数不返回任何值。
+　　这两个函数的应用见下面的例子。
+例13-4 函数csvread和csvwrite 的应用。
+　　本例首先将MATLAB的图标转化为灰度图，将数据存储在文本文件中，再将其部分读出，显示为图形。
+　　编写M文件，命名为immatlab.m，内容为：
+　　% the example of functions csvread and csvwrite
+　　I_MATLAB= imread('D:\matlab.bmp');     % read in the image
+　　I_MATLAB= rgb2gray(I_matlab);          % convert the image to gray image
+　　figure,imshow(I_matlab,'InitialMagnification',100); % show the image
+　　csvwrite('D:\matlab.txt',I_matlab);     % write the data into a text file
+　　sub_MATLAB= csvread('D:\matlab.txt',100,100);% read in part of the data
+　　sub_MATLAB= uint8(sub_matlab);         % convert the data to uint8
+　　figure,imshow(sub_matlab,'InitialMagnification',100);      % show the new image
+　　在命令窗口中运行该脚本，输出图形如图13-2所示。
+ 
+(a)                                            (b)
+图13-2 例13-3 的运行结果
+　　该例中涉及到了少量的图像处理内容，超出本书的范围，感兴趣的读者可以查阅 MATLAB帮助文档中关于Image Processing Toolbox的介绍。
+2. dlmread、dlmwrite（个人觉得这个比较好用）
+　dlmread函数用于从文档中读入数据，其功能强于csvread。dlmread的调用格式如下：
+● M = dlmread('filename')
+● M = dlmread('filename', delimiter)
+● M = dlmread('filename', delimiter, R, C)
+● M = dlmread('filename', delimiter, range)
+　　其中参数delimiter用于指定文件中的分隔符，其他参数的意义与csvread函数中参数的意义相同，这里不再赘述。dlmread函数与csvread函数的差别在于，dlmread函数在读入数据时可以指定分隔符，不指定时默认分隔符为逗号。
+　　dlmwrite函数用于向文档中写入数据，其功能强于csvwrite函数。dlmwrite函数的调用格式为：
+● dlmwrite('filename', M)，将矩阵M的数据写入文件filename中，以逗号分隔。
+● dlmwrite('filename', M, 'D')，将矩阵M的数据写入文件filename中，采用指定的分隔符分隔数据，如果需要tab键，可以用“\t”指定。
+● dlmwrite('filename', M, 'D', R, C)，指定写入数据的起始位置。
+● dlmwrite('filename', M, attribute1, value1, attribute2, value2, ...)，指定任意数目的参数，可以指定的参数见下表。
+● dlmwrite('filename', M, '-append')，如果filename指定的文件存在，在文件后面写入数据，不指定时则覆盖原文件。
+● dlmwrite('filename', M, '-append', attribute-value list)，叙写文件，并指定参数。
+● dlmwrite 函数的可用参数如表13-2所示。
+ 
+ 
+表13-2 dlmwrite函数的可用参数
+参 数 名        功    能
+delimiter       用于指定分隔符
+newline         用于指定换行符，可以选择“pc”或者“unix”
+roffset           行偏差，指定文件第一行的位置，roffset 的基数为 0
+coffset           列偏差，指定文件第一列的位置，coffset 的基数为 0
+precision       指定精确度，可以指定精确维数，或者采用 c 语言的格式，如“.5f”
+　　
+3. textread，textscan
+　　当文件的格式已知时，可以利用textread函数和textscan函数读入。这里只介绍这两个函数应用的实例。
+　　例13-5 通过%读入文件，按照原有格式读取。
+文件的内容为：
+　　Sally    Level1 12.34 45 Yes
+在命令窗口中输入：
+　　>> [names, types, x, y, answer] = textread('D:\mat.txt','%s %s %f %d %s', 1)
+得到结果为：
+　　names =
+　　    'Sally'
+　　types =
+　　    'Level1'
+　　x =
+　　   12.3400
+　　y =
+　　    45
+　　answer =
+　　    'Yes'
+　　
+　例13-6 函数csvread和csvwrite的应用
+　　Sally Level1 12.34 45 1.23e10 infNaN Yes
+　　Joe Level2 23.54 60 9e19 -inf 0.001 No
+　　Bill Level3 34.90 12 2e5 10 100 No
+　　>>fid = fopen('D:\mat.txt');
+　　>> C = textscan(fid, '%s %s ?2 ? %u %f %f %s');
+　　>>fclose(fid);
+13.3 低级文件I/O
+　　本节介绍一些基本的文件操作，这些操作如表13-3所示。
+表13-3 MATLAB的基本文件操作
+函    数        功    能
+fclose     关闭打开的文件
+feof       判断是否为文件结尾
+ferror    文件输入输出中的错误查找
+fgetl    读入一行，忽略换行符
+fgets    读入一行，直到换行符
+fopen     打开文件，或者获取打开文件的信息
+fprintf    格式化输入数据到文件
+fread     从文件中读取二进制数据
+frewind    将文件的位置指针移至文件开头位置
+fscanf     格式化读入
+fseek  设置文件位置指针
+ftell  文件位置指针
+fwrite向文件中写入数据
+ 
+下面重点介绍函数fprintf。该函数的调用格式如下：
+count = fprintf(fid, format, A, ...)，该语句将矩阵A及后面其他参数中数字的实部以 format 指定的格式写入到fid指定的文件中，返回写入数据的字节数。
+ 
+上面语句中，参数format由%开头，共可由4个部分组成，分别如下：
+● 标记(flag)，为可选部分。
+● 宽度和精度指示，为可选部分。
+● 类型标志符，为可选部分。
+● 转换字符，为必需部分。
+1. 标记
+　　标记用于控制输出的对齐方式，可以选择的内容如表13-4所示。
+表13-4 标记的可选内容
+函    数                        功    能                 示    例
+负号(-)           在参数左侧进行判别     %-5.2d
+加号(+)           在数字前添加符号     %+5.2d
+空格           在数字前插入空格     % 5.2d
+ 
+0           在数字前插入0                .2d
+ 
+2. 宽度和精度指示
+　　用户可以通过数字指定输出数字的宽度及精度，格式如下：
+● o，指定数字的宽度；
+● %6.2f，指定数字的宽度及精度；
+● %.2f，指定数字的精度。
+例13-6 fprintf函数宽度和精度指示符示例。
+　　在命令窗口中输入如下命令：
+　　>>file_type = fopen('D:\type.txt','w');
+　　>>fprintf(file_h, '%6.2f .8f\n', 1.2, -43.3);
+　　>>fprintf(file_h, 'o f\n', 1.2, -43.3);
+　　>>fprintf(file_h, '%.2f %.8f\n', 1.2, -43.3);
+　　>>fclose(file_h)
+　　ans =
+　　     0
+　　打开该文件，其内容为：
+　　 1.20 -43.30000000
+　　1.200000   -43.300000
+　　1.20 -43.30000000
+　　从上述结果可以看出宽度和精度控制的效果。
+3. 转换字符
+　　转换字符用于指定输出的符号，可以选择的内容如表13-5所示。
+表13-5 格式化输出的标志符及意义
+标 志 符      意    义
+     %c     输出单个字符
+     %d      输出有符号十进制数
+     %e    采用指数格式输出，采用小写字母 e，如：3.1415e+00
+     %E    采用指数格式输出，采用大写字母 E，如：3.1415E+00
+     %f     以定点数的格式输出
+     %g    %e及%f的更紧凑的格式，不显示数字中无效的 0
+     %G    与%g相同，但是使用大写字母E
+     %i    有符号十进制数
+     %o   无符号八进制数
+     %s   输出字符串
+     %u   无符号十进制数
+     %x    十六进制数(使用小写字母a－f)
+     %X   十六进制数(使用大写字母A－F)
+　其中 %o、%u、%x、%X支持使用子类型，具体情况这里不再赘述。格式化输出标志符的效果见下面的例子。
+例13-7 fprintf 格式化输出示例。
+　　>> x = 0:.1:1;
+　　>> y = [x; exp(x)];
+　　>>fid = fopen('exp.txt', 'wt');
+　　>>fprintf(fid, '%6.2f .8f\n', y);
+　　>>fclose(fid)
+　　ans =
+　　     0
+　　显示该文件：
+　　>>type exp.txt
+　　 0.00   1.00000000
+　　 0.10   1.10517092
+　　…
+　　 0.90   2.45960311
+　　 1.00   2.71828183
+　　例13-9 利用 fprintf 函数在显示器上输出字符串
+　　>>fprintf(1,'It''s Friday.\n')
+　　It's Friday.
+　　在该例中，利用1表示显示器，并且用两个单引号显示单引号，使用\n进行换行。在格式化输出中，这类符号称为转义符。MATLAB中的常用转义符如表13-6所示。
+　　
+　　
+表13-6 MATLAB中的常用转义符
+转 义 符                               功    能
+   \b                                         退格
+   \f                                          表格填充
+   \n                                      　换行符
+   \r　　　　　　　　　　　　回车
+   \t　　　　　　　　　　　　tab
+   \\　　　　　　　　　　　   反斜线
+   \'' 或 ''                                 单引号
+   %%　　　　　　　　　     百分号
+13.4 利用界面工具导入数据
+　　除前面几节介绍的函数外，也可以通过界面工具将数据导入到工作区中。本节介绍利用工作区浏览器中的工具导入数据。
+　　选择工作区浏览器工具栏中的“Import Data”，选择待导入的文件，这里我们选择了一个文本文件，其内容为逗号分隔的数字，打开窗口如图13-3所示。
+ 
+ 
+ 
+想用matlab读取txt文件，怎么实现
+ 
+http://zhidao.baidu.com/question/249849169.html?an=0&si=1
+ 
+输入输出方式，即从数据文件读取数据或将结果写入数据文件。MATLAB提供了一系列低层输入输出函数，专门用于文件操作。 
+1、文件的打开与关闭
+ 1）打开文件  在读写文件之前，必须先用fopen函数打开或创建文件，并指定对该文件进行的操作方式。
+fopen函数的调用格式为：  fid=fopen（文件名，‘打开方式’）
+ 说明：其中fid用于存储文件句柄值，如果返回的句柄值大于0，则说明文件打开成功。文件名用字符串形式，表示待打开的数据文件。常见的打开方式如下：
+      ‘r’：只读方式打开文件（默认的方式），该文件必须已存在。
+      ‘r+’：读写方式打开文件，打开后先读后写。该文件必须已存在。
+      ‘w’：打开后写入数据。该文件已存在则更新；不存在则创建。
+      ‘w+’：读写方式打开文件。先读后写。该文件已存在则更新；不存在则创建。 
+      ‘a’：在打开的文件末端添加数据。文件不存在则创建。
+      ‘a+’：打开文件后，先读入数据再添加数据。文件不存在则创建。 
+另外，在这些字符串后添加一个“t”，如‘rt’或‘wt+’，则将该文件以文本方式打开；如果添加的是“b”，则以二进制格式打开，这也是fopen函数默认的打开方式。
+ 2）关闭文件  文件在进行完读、写等操作后，应及时关闭，以免数据丢失。
+关闭文件用fclose函数，调用格式为：  sta＝fclose(fid) 
+ 说明：该函数关闭fid所表示的文件。sta表示关闭文件操作的返回代码，若关闭成功，返回0，否则返回-1。如果要关闭所有已打开的文件用fclose(‘all’)。
+  2、二进制文件的读写操作
+ 1）写二进制文件
+fwrite函数按照指定的数据精度将矩阵中的元素写入到文件中。
+其调用格式为：  COUNT＝fwrite（fid，A，precision） 
+说明：其中COUNT返回所写的数据元素个数（可缺省），fid为文件句柄，A用来存放写入文件的数据，precision代表数据精度，常用的数据精度有：char、uchar、int、long、float、double等。缺省数据精度为uchar，即无符号字符格式。
+ 例6.8 将一个二进制矩阵存入磁盘文件中。
+>> a=[1 2 3 4 5 6 7 8 9];
+>> fid=fopen('d:\test.bin','wb')   %以二进制数据写入方式打开文件  fid = 3  %其值大于0，表示打开成功 
+>>fwrite(fid,a,'double')  ans =9   %表示写入了9个数据 
+>>fclose(fid)  ans =0           %表示关闭成功 
+2）读二进制文件 
+fread函数可以读取二进制文件的数据，并将数据存入矩阵。
+其调用格式为：  [A，COUNT]=fread(fid，size，precision) 
+说明：其中A是用于存放读取数据的矩阵、COUNT是返回所读取的数据元素个数、fid为文件句柄、size为可选项，若不选用则读取整个文件内容；
+若选用则它的值可以是下列值：N（读取N个元素到一个列向量）、inf（读取整个文件）、[M，N]（读数据到M×N的矩阵中，数据按列存放）。precision用于控制所写数据的精度，其形式与fwrite函数相同。
+ 3、文本文件的读写操作
+ 1）读文本文件 
+fscanf函数可以读取文本文件的内容，并按指定格式存入矩阵。
+其调用格式为：  [A，COUNT]=fscanf(fid，format，size)
+ 说明：其中A用来存放读取的数据，COUNT返回所读取的数据元素个数，fid为文件句柄，format用来控制读取的数据格式，由%加上格式符组成，常见的格式符有：d（整型）、f（浮点型）、s（字符串型）、c（字符型）等，在%与格式符之间还可以插入附加格式说明符，如数据宽度说明等。size为可选项，决定矩阵A中数据的排列形式，它可以取下列值：N（读取N个元素到一个列向量）、inf（读取整个文件）、[M，N]（读数据到M×N的矩阵中，数据按列存放）。
+ 2）写文本文件 
+fprintf函数可以将数据按指定格式写入到文本文件中。
+其调用格式为：  fprintf（fid，format，A） 
+说明：fid为文件句柄，指定要写入数据的文件，format是用来控制所写数据格式的格式符，与fscanf函数相同，A是用来存放数据的矩阵。
+ 例6.9 创建一个字符矩阵并存入磁盘，再读出赋值给另一个矩阵。 
+>> a='string'; 
+>>fid=fopen('d:\char1.txt','w');
+>>fprintf(fid,'%s',a);
+>>fclose(fid);
+>> fid1=fopen('d:\char1.txt','rt');
+>> fid1=fopen('d:\char1.txt','rt');
+>> b=fscanf(fid1,'%s')  b =  string  
+matlab读txt文件   
+fid=fopen('fx.txt','r');  %得到文件号
+[f,count]=fscanf(fid,'%f %f',[12,90]);  %把文件号1的数据读到f中。其中f是[12 90]的矩阵  %这里'%f %f'表示读取数据的形势，他是按原始数据型读出
+fclose(fid);  %关闭文件
+ 另外有的txt文件还可以用load来打开  其语句为  f=load('fx.txt)  我个人觉得用第一种方式较好。因为有些时候，特别是fx.txt 的一行种有多个数据时用load  就比较麻烦了。
+ 
+matlab如何读取含有文本的TXT数据文件并存入数组？？
+http://zhidao.baidu.com/question/139154026.html?fr=qrl&cid=93&index=4
+有如下格式的数据文件：
+  5 jhgjyjygjhkjhjhkjh
+yuyuyuytuytuytuytuytuyt
+fhjhgjyjygjhkjhjhkjh
+kjhkjh 56 56 21 654 54 354 
+jhjh 54 6456 654 46 5 21 
+kjhkjh 12 56 54 -562 21 21 
+kjhkjh 321 412 654 54 4 23 
+kjhkjh 646 545 1254 54 21 1 
+kjhkjh 4 545 632 1 38 32
+kjhkjh 21 3 -15 6554 55 63
+kjhkjh 21 21 1 13107 3 94
+kjhkjh 5 21 2 19660 45 125 
+kjhkjh 1 3 3 26213 52423 156
+kjhkjh -639 -15 4 2 0 187
+kjhkjh -319 2 21 21 21 218
+kjhkjh 1 2 21 23 25 249
+kjhkjh 321 321 21 23 25 280
+ 如何才能读取该文件4到17行，3到8列的数据，并存入一个数组A中，我的数据文件为TXT文档：
+clc;clear;close all;  
+hang=[4 17];%4行到17行。这样你也可以变化 
+lie=[3 8];%3到8列。这样你也可以变化   
+[FileName,PathName] = uigetfile('*.txt','Select the Txt files');%弹出对话框，然后选择你要处理的文件 
+fid=fopen([PathNameFileName]); 
+temp=textscan(fid,'%s %s %s %s %s %s %s %s'); 
+fclose(fid); 
+fori=1:(hang(2)-hang(1)+1)     
+for j=1:(lie(2)-lie(1)+1)        
+   b=temp{j+lie(1)-1}{i+hang(1)-1};        
+A(i,j)=str2num(b);    
+end
+end
+ 
+三维矩阵存入txt文档
+ 
+我已得到matlab结果为多个三维数组（224*196*224），但是由于内存限制，故需将这些矩阵先保存到txt 文件中，当需要时再从txt文件中读取，如何将多个三维矩阵依次存入txt文件中，并读取呢。
+ 
+[rows,cols,thirds]=size(A);
+dlmwrite( 'd:\1.txt', A, 'delimiter', '\t','precision', 16);
+eo= dlmread('d:\1.txt');
+EO=reshape(eo,rows,cols,thirds);
+分享：
+
+
+
+
