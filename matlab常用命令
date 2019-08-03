@@ -5,10 +5,12 @@
            #y轴是垂直的，并且向下延伸
 >>I(420:440,95:115)   #将选中区域点的坐标显示出来
 
+>> for i=1:3 dlmwrite("d:\998.txt",I(:,:,i))
+end
+用dlmwrite一次写一个维度，因为(彩色)图像有rgb三个通道，在matlab里面看到的变量可能是m，n，3的大小
 
-dlmwrite('d:\999.txt',I(:,:,i))
-用dlmwrite一次写一个维度，因为图像有rgb三个通道，在matlab里面看到的变量可能是m，n，3的大小
-
+对于单通道的，灰度图像，只需要
+>>dlmwrite('d:\111.txt',imggray) #imggray是图像用imread读入后的数据
 
 示例一
 下面这段代码读取一张图片并显示出来
