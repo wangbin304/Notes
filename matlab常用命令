@@ -31,3 +31,21 @@ imgGray = rgb2gray(imgRgb); % 转为灰度图像
 figure % 打开一个新的窗口显示灰度图像
 imshow(imgGray); % 显示转化后的灰度图像
 imwrite(imgGray, 'gray.jpg'); % 将灰度图像保存到图像文件
+
+
+
+
+
+% 如果你的图片命名方式是first1.jpg first2.jpg....first50.jpg.....
+clear all;
+clc;
+file_path1 ='C:\Users\Administrator\Desktop\1\';
+img_path_list1 = dir(strcat(file_path1,'*.jpg'));
+Len= length(img_path_list1);                                            % 获取图像总数量 (三个图片文件夹中图片数量一致)
+for k=1:Len
+    Img = imread([file_path1,'first',num2str(k),'.jpg'],'jpg');%如果你的图片命名方式是1.jpg 2.jpg....50.jpg.....则需要把first去掉，
+    总之 %first那部分灵活运用
+   figure,
+    imshow(Img);
+end
+ 
