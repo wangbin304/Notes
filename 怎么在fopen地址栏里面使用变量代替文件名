@@ -1,0 +1,5 @@
+int n;
+scanf("%d",&n);
+char s[255];
+sprintf(s, "%d.txt", n);
+fp=fopen(s,"w"); 
