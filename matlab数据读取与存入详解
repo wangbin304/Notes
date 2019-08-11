@@ -14,6 +14,16 @@ matlab数据读取与存入详解
 　　该命令可以保存工作区，或工作区中任何指定文件。该命令的调用格式如下：
 ● save：将工作区中的所有变量保存在当前工作区中的文件中，文件名为 matlab.mat，MAT文件可以通过load函数再次导入工作区，MAT函数可以被不同的机器导入，甚至可以通过其他的程序调用。
 ● save('filename')：将工作区中的所有变量保存为文件，文件名由filename指定。如果filename中包含路径，则将文件保存在相应目录下，否则默认路径为当前路径。
+
+程序举例
+ files=dir('g:\下\*.jpg');
+for i=1:numel(files)
+oldname=files(i).name;
+I=imread(['g:\下\' oldname]);
+newname=strcat(num2str(i),'.mat');
+save(['g:\up222\' newname],'I');
+end
+
 ● save('filename', 'var1', 'var2', ...)：保存指定的变量在 filename 指定的文件中。
 ● save('filename', '-struct', 's')：保存结构体s中全部域作为单独的变量。
 ● save('filename', '-struct', 's', 'f1', 'f2', ...)：保存结构体s中的指定变量。
