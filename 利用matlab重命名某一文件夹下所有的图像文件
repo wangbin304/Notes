@@ -28,3 +28,25 @@ for i = 1 : numel(files)
   end
 
 end
+
+
+
+
+
+
+
+
+
+
+实战举例：
+先将一个文件夹下面的.jpg全部重命名,然后将重命名的.jpg灰化，然后分别写入.txt文件
+files=dir('g:\上\*.jpg');
+for i=1:numel(files)
+oldname=files(i).name;
+I=imread(['g:\上\' oldname]);
+newname=strcat(num2str(i),'.jpg');
+imwrite(I,['g:\UP\' newname],'jpg');
+I1=rgb2gray(I);
+newname2=strcat(num2str(i),'.txt');
+dlmwrite(['g:\UP1\' newname2 ],I1);
+end
