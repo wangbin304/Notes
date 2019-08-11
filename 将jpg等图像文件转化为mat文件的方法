@@ -1,9 +1,0 @@
- 在matlab中把一个jpg（或者bmp等其他）格式图像转换成数字图形，后缀是mat的，然后在程序中可以用load读出的方法：
-% 定义一个函数，参数为（jpg文件路径与名称，如c:a.jpg）
-function I = imread_ai(Image_file_name);
-
-% 调用matlab的图像读取函数imread读图片
-I = imread(Image_file_name);
-
-% 存成mat文件，下次用load读取
-save('filename',I)
