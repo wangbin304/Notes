@@ -1,0 +1,65 @@
+调用格式说明
+编辑
+B = imrotate(A,angle)
+将图像A（图像的数据矩阵）绕图像的中心点旋转angle度， 正数表示逆时针旋转， 负数表示顺时针旋转。返回旋转后的图像矩阵。
+B = imrotate(A,angle,method)
+使用method参数可以改变插值算法，method参数可以为下面这三个值：
+'nearest'：最邻近线性插值（Nearest-neighbor interpolation）
+'bilinear'： 双线性插值（Bilinear interpolation）
+'bicubic'： 双三次插值（或叫做双立方插值）（Bicubic interpolation）
+B = imrotate(A,angle,method,bbox)
+bbox参数用于指定输出图像属性：
+'crop'： 通过对旋转后的图像B进行裁剪， 保持旋转后输出图像B的尺寸和输入图像A的尺寸一样。
+'loose'： 使输出图像足够大， 以保证源图像旋转后超出图像尺寸范围的像素值没有丢失。 一般这种格式产生的图像的尺寸都要大于源图像的尺寸。
+
+
+
+
+程序举例：
+files=dir('g:\down\*.jpg');
+for i=1:numel(files)
+oldname=files(i).name;
+I=imread(['g:\down\' oldname]);
+I1=rgb2gray(I);
+I2=imrotate(I1,40,'bilinear','loose');
+newname=strcat(num2str(i),'.jpg');
+imwrite(I2,['g:\dodo\' newname],'jpg');
+end
+
+B = imrotate(A,angle)
+B = imrotate(A,angle,method)
+B = imrotate(A,angle,method,bbox)
+
+
+
+
+a=imread('D:\ebook\lena.bmp');
+ a=rgb2gray(a);
+ a1=imrotate(a,35,'bilinear');%%旋转函数，35为旋转角度，bilinear为旋转后不是整数点的像素值 通过双线性插值得到。当旋转角度为正时，逆时针旋转；当旋转角度为负时，顺时针旋转。
+ figure,imshow(a);
+ figure,imshow(a1);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+如果要对RGB图像旋转，可以对其各个分量进行旋转，最后合成彩色图像即可。假设彩色图像为a：
+R=a(:,:,1);
+G=a(:,:,2);
+B=a(:,:,3);
+对RGB用imrotate旋转同样的角度后变为R',G',B',则彩色图像为a1那么
+a1(:,:,1)=R';
+a1(:,:,2)=G';
+a1(:,:,3)=B';
+显示a1即可。
+
+
+追问
+p1=imread('a.bmp');
+r1=p1(:,:,1),g1=p1(:,:,2),b1=p1(:,:,3);
+r1=rgb2gray(r1),g1=rgb2gray(g1),b1=rgb2gray(b1);
+i=imrotate(r1,30,'bilinear','crop');
+j=imrotate(g1,30,'bilinear','crop');
+k=imrotate(b1,30,'bilinear','crop');
+img1(:,:,1)=i,img1(:,:,2)=j,img1(:,:,3)=k;
+imshow(img1);
+您看看哪里错了？
+追答
+r1=rgb2gray(r1),g1=rgb2gray(g1),b1=rgb2gray(b1);
+你转化成灰度了，最后就不能合成彩色图像了。
