@@ -1,5 +1,9 @@
+B = imrotate(A,angle)
+B = imrotate(A,angle,method)
+B = imrotate(A,angle,method,bbox)
+
 调用格式说明
-编辑
+
 B = imrotate(A,angle)
 将图像A（图像的数据矩阵）绕图像的中心点旋转angle度， 正数表示逆时针旋转， 负数表示顺时针旋转。返回旋转后的图像矩阵。
 B = imrotate(A,angle,method)
@@ -26,9 +30,6 @@ newname=strcat(num2str(i),'.jpg');
 imwrite(I2,['g:\dodo\' newname],'jpg');
 end
 
-B = imrotate(A,angle)
-B = imrotate(A,angle,method)
-B = imrotate(A,angle,method,bbox)
 
 
 
