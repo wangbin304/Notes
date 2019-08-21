@@ -6,5 +6,6 @@ ImageNum=size(filename,2);
 for i=1:ImageNum
 ImageName=char(filename(i));
 I=imread(ImageName);
-%你的操作
-end 
+%你的操作                      #  newname=strcat(num2str(i),'.txt');
+                              #  dlmwrite(['d:\rotateup\' newname],I);      
+end                         
