@@ -20,12 +20,24 @@ bbox参数用于指定输出图像属性：
 
 
 程序举例：
+例一：
+ files=dir('g:\up\*.jpg');
+for i=1:numel(files)
+oldname=files(i).name;
+I=imread(['g:\up\' oldname]);
+I1=rgb2gray(I);
+I2=imrotate(I1,-30,'nearest','loose');
+imwrite(I2,['d:\上\' oldname],'jpg');
+end
+
+
+例二：
 files=dir('g:\down\*.jpg');
 for i=1:numel(files)
 oldname=files(i).name;
 I=imread(['g:\down\' oldname]);
 I1=rgb2gray(I);
-I2=imrotate(I1,40,'bilinear','loose');
+I2=imrotate(I1,40,'bilinear','loose');  //bilinear旋转过后的灰度图像会失真，像素变小；
 newname=strcat(num2str(i),'.jpg');
 imwrite(I2,['g:\dodo\' newname],'jpg');
 end
