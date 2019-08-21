@@ -1,0 +1,10 @@
+用uigetfile函数就好，弹出个窗口，你全选读入就行了，而且这个顺序和你电脑上存储的顺序一样，不关你事按照修改时间、名称、大小还什么什么排列的，都可以读。
+[filename, pathname] = uigetfile('*.jpg', '请选择需要的图','MultiSelect','on');
+RFfilepath=pathname;
+addpath(genpath(RFfilepath));
+ImageNum=size(filename,2);
+for i=1:ImageNum
+ImageName=char(filename(i));
+I=imread(ImageName);
+%你的操作
+end 
