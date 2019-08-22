@@ -41,6 +41,9 @@ end
 
 实战举例：   //此处需特别注意matlab中是按列读取  即文件名存进数组中 也是按列比对先后 比如排序为 1 12 123 2 21 。。。
 //只有对于已经符合matlab读取顺序的文件夹下的文件名可以依照下面的方法读取
+
+易错：
+
 先将一个文件夹下面的.jpg全部重命名,然后将重命名的.jpg灰化，然后分别写入.txt文件
 files=dir('g:\上\*.jpg');
 for i=1:numel(files)
@@ -52,3 +55,21 @@ I1=rgb2gray(I);
 newname2=strcat(num2str(i),'.txt');
 dlmwrite(['g:\UP1\' newname2 ],I1);
 end
+
+
+
+
+
+
+
+将matlab能够顺序读取的jpg文件灰化，旋转，分别存取成.jpg和.txt文件
+
+files=dir('d:\up\*.jpg');
+ for i=1:numel(files)
+oldname=files(i).name;
+I=imread(['d:\up\' oldname]);
+I1=rgb2gray(I);
+I2=imrotate(I1,-5,'nearest','loose');
+imwrite(I2,['d:\上\' oldname],'jpg');
+newname2=strcat(num2str(i),'.txt');
+dlmwrite(['d:\rotateup\' newname2],I2);
