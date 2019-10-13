@@ -1,0 +1,13 @@
+function用来定义函数，一般一个函数放在一个.m文件里。举个简单的例子建立一个myfunction.m，然后在文件中写。
+function y=myfunction(a,b)
+其中a,b是输入函数的参数，y是函数返回的值。当需要返回多个值时，可以将y看作一个数组，或者直接将函数的开头写成如function [x,y]=myfunction(x,y)的形式。
+然后就是定义函数的内容，通俗的说就是怎样由输入参数a,b得到返回值y。比如最简单的y=a+b。
+
+总结一下，将下面的代码
+function y=myfunction(a,b)
+y=a+b;
+保存为一个m文件myfunction.m，调用方式如下。
+num=myfunction(3,4);
+这样就可以由函数中的y=a+b得到num的值是3+4=7。
+
+在matlab中调用函数只能在.m文件中定义，并且文件名和函数名形同。 
