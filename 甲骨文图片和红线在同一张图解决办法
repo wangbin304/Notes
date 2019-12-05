@@ -8,11 +8,3 @@ imshow(ub)
 
 
 
- file=dir('d:\matlab 工作空间\A.jpg');
->> oldname=file.name;
->> newname=strcat(oldname,'.txt');
->> I1=imread('d:\matlab 工作空间\A.jpg');
->> [uysize, uxsize,uz] = size(I1); % 行 列 3  eg：  1073*497*3  返回 1073 497 3
-ub=ones(uysize,uxsize); 
-ub(I1(:,:,2)>30) = 0; 
->> dlmwrite(['d:\888\' newname],ub);
