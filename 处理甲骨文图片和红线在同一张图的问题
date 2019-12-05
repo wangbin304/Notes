@@ -1,6 +1,0 @@
-I=imread('d:\matlab 工作空间\A.jpg');
-I1=rgb2lab(I);
-[uysize, uxsize,uz] = size(I1); % 行 列 3  eg：  1073*497*3  返回 1073 497 3
-ub=ones(uysize,uxsize); 
-ub(I1(:,:,2)>30) = 0; 
-imshow(ub)
