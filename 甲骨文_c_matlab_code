@@ -1,0 +1,2542 @@
+matlab代码————预处理
+
+
+% upfolder = 'D:\Documents\wb\20191021\UP\';
+% downfolder = 'D:\Documents\wb\20191021\DOWN\';
+% saveupfolder = 'D:\Documents\wb\20191021\UPP\';
+% savedownfolder='D:\Documents\wb\20191021\DOWNN\'
+
+upfolder = '..\JPG_UP\';
+downfolder = '..\JPG_DOWN\';
+saveupfolder = '..\Intermediate_process\UPP\';
+savedownfolder='..\Intermediate_process\DOWNN\'
+
+try
+    mkdir(saveupfolder);
+end
+try
+    mkdir(savedownfolder);
+end
+up=dir([upfolder,'*.jpg']);
+down=dir([downfolder,'*.jpg']);
+
+
+
+
+for i=1:numel(up)
+    oldname=up(i).name;
+    I=imread([upfolder,oldname]);
+    I1=rgb2lab(I);
+    [uysize,uxsize,uz]=size(I1);
+    ub=ones(uysize,uxsize);
+    ub(I1(:,:,2)>=10)=0;  %ub(I1(:,:,2)>=15)=0;
+    newname=strcat(num2str(i),'.txt');
+    dlmwrite([saveupfolder,newname],ub);
+end  
+  
+ 
+
+ for i=1:numel(down)
+    oldname=down(i).name;
+    I=imread([downfolder,oldname]);
+    I1=rgb2lab(I);
+    [uysize,uxsize,uz]=size(I1);
+    ub=ones(uysize,uxsize);
+    ub(I1(:,:,2)>=10)=0; %ub(I1(:,:,2)>=15)=0;    >=10 六个1
+    newname=strcat(num2str(i),'.txt');
+    dlmwrite([savedownfolder,newname],ub);
+end
+
+  %旋转的图像
+for i=1:numel(down)
+    oldname=down(i).name;
+    I=imread([downfolder,oldname]);
+    I1=rgb2lab(I);
+    I2=imrotate(I1,-10,'nearest','loose');
+    [uysize,uxsize,uz]=size(I2);
+    ub=ones(uysize,uxsize);
+    ub(I2(:,:,2)>=10)=0;  %ub(I1(:,:,2)>=15)=0;
+    newname=strcat(num2str(i+length(down)),'.txt');
+    dlmwrite([savedownfolder,newname],ub);
+  end
+  
+   for i=1:numel(down)
+    oldname=down(i).name;
+    I=imread([downfolder,oldname]);
+    I1=rgb2lab(I);
+    I3=imrotate(I1,10,'nearest','loose');
+    [uysize,uxsize,uz]=size(I3);
+    ub=ones(uysize,uxsize);
+    ub(I3(:,:,2)>=10)=0;  %ub(I1(:,:,2)>=15)=0;
+      newname=strcat(num2str(i+2*length(down)),'.txt');
+    dlmwrite([savedownfolder,newname],ub);
+   end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+c语言代码--比对出结果
+
+
+
+
+#include<io.h>
+#include<iostream>
+#include<stdlib.h>
+#include<stdio.h>
+#include<string.h>
+#include<algorithm>
+#include<time.h>
+#include<math.h>
+#include <direct.h>
+using namespace std;
+
+
+//1
+int vlaue[5000][5000];
+int step[5000][5000];
+int ii1,jj1;
+struct node
+{
+    float x;
+    float y;
+    float xl;
+    float alter;
+    char ch1;
+    char ch2;
+} node1[5000],node2[5000];
+int start=0;
+int files;
+int bj;
+void dfs(int a,int b)
+{
+    if(bj==1)
+    {
+        return;
+    }
+    if(step[a][b]==1)
+        return;
+//    if(f!=0&&(a!=node1[start].x&&b!=node1[start].y))
+//        return;
+    int next1[4][2]= {{-1,0},{0,1},{1,0},{0,-1}};
+    int next2[8][2]= {{-1,-1},{-1,0},{-1,1},{0,1},{1,1},{1,0},{1,-1},{0,-1}};
+    node1[start].x=a;
+    node1[start++].y=b;
+//    printf("%d %d %d %d\n",a,b,ii1,jj1);
+    if(a==ii1&&b==jj1-1)
+    {
+//            printf("\n<*><*><*><*> <*><*><*><*>\n");
+        bj=1;
+        return;
+    }
+    step[a][b]=1;
+    int x1,y1;
+    int x2,y2;
+    for(int i=0; i<4; i++)
+    {
+        x1=a+next1[i][0];
+        y1=b+next1[i][1];
+        if(step[x1][y1]!=1&&(vlaue[x1][y1]==1))
+        {
+            for(int j=0; j<8; j++)
+            {
+                x2=x1+next2[j][0];
+                y2=y1+next2[j][1];
+                if(vlaue[x2][y2]==0)
+                {
+                    dfs(x1,y1);
+                    break;
+                }
+            }
+        }
+    }
+    return;
+}
+
+
+
+
+//2
+char str1[2000],str2[2000],str3[2000],str4[2000],str5[2000],str6[2000];
+int num1[5000][5000];
+int num2[5000][5000];
+int num3[5000][5000];
+float dist[2000][2000];
+float output[2000][2000];
+int m=0,n,nn=0;
+int files1,files2;
+struct nod
+{
+    float x;
+    float y;
+};
+int flag,flag2;
+int temp;
+
+
+
+//3
+float num[5000][5000];
+struct temp
+{
+    int y;
+    float value;
+};
+struct up
+{
+    char uname[1000];
+} up1[10000];
+struct down
+{
+    char dname[1000];
+} down1[10000];
+bool cmp(struct temp a,struct temp b)
+{
+    return a.value>b.value;
+}
+int u1=1,d1=1;
+
+int main()
+{
+    int op;
+    printf("op=1 :Program has not been run, first execution,It will take a long time!\n\n");
+    printf("\nop=2 :The first time the program has been executed, this time just to get the result!\n\n");
+    printf("\nplease input op: ");
+    scanf("%d",&op);
+    switch(op)
+    {
+    case 1:
+    {
+        int front_n;
+        printf("Since you execute the program for the first time, it will take a long time,I want to go back to the top:");
+        scanf("%d",&front_n);
+        //1 up
+        long Handle4;
+        struct _finddata_t FileInfo;
+        if((Handle4=_findfirst("..\\Intermediate_process\\UPP\\*.txt",&FileInfo))==-1L)
+            printf("no find files\n");
+        else
+        {
+            files++;
+            while(_findnext(Handle4,&FileInfo)==0)
+                files++;
+            _findclose(Handle4);
+        }
+        char sword1[50],sword2[50];
+        printf("Step 1: extract features\n");
+//
+//        system(delete ..\\Intermediate_process\\upp_inf);
+        mkdir("..\\Intermediate_process\\upp_inf");
+
+
+        for(int nn=1; nn<=files; nn++)
+        {
+            printf("up- %d\n",nn);
+            start=0;
+            bj=0;
+            memset(sword1,0,sizeof(sword1));
+            memset(sword2,0,sizeof(sword2));
+            memset(node1,0,sizeof(node1));
+            memset(node2,0,sizeof(node2));
+            memset(step,0,sizeof(step));
+            memset(vlaue,0,sizeof(vlaue));
+            sprintf(sword1,"..\\Intermediate_process\\UPP\\%d.txt",nn);
+            sprintf(sword2,"..\\Intermediate_process\\upp_inf\\%d.txt",nn);
+
+
+            FILE *fp1,*fp2;
+            if((fp1=fopen(sword1,"r"))==NULL)
+            {
+                printf("1 up fp1 error occur!\n");
+                exit(1);
+            }
+            if((fp2=fopen(sword2,"w"))==NULL)
+            {
+                printf("1 up fp2 error occur!\n");
+                exit(1);
+            }
+            int m=0,n=0,n1=0;
+            char ch;
+            while((fscanf(fp1,"%d",&vlaue[m][n1]))!=EOF)
+            {
+                n1++;
+                if((ch=fgetc(fp1))=='\n')
+                {
+                    n=n1;
+                    n1=0;
+                    m++;
+                }
+            }
+            int ff=0;
+            for(int j=0; j<n; j++)
+            {
+                ff=0;
+                start=0;
+                for(int i=0; i<m; i++)
+                {
+                    if((vlaue[i-1][j]==1)&&(vlaue[i-2][j]==1)&&(vlaue[i+1][j]==0)&&(vlaue[i+2][j]==0)&&vlaue[i+20][j]==1)
+                    {
+                        ii1=i;
+                        jj1=j;
+                        dfs(i,j);
+                        if(start<50)
+                        {
+                            bj=0;
+                            memset(step,0,sizeof(step));
+                            memset(node1,0,sizeof(node1));
+                            break;
+                        }
+//                printf("%d %d\n",ii1,jj1);
+                        ff=1;
+                        break;
+                    }
+                }
+                if(ff==1)
+                    break;
+            }
+//    printf("%d %d\n",m,n);
+//    for(int i=0; i<m; i++)
+//    {
+//        for(int j=0; j<n; j++)
+//        {
+//            printf("%d ",vlaue[i][j]);
+//        }
+//        printf("\n");
+//    }
+            int start2;
+            start2=(start+1)/2-10;
+            for(int i=0; i<start2; i++)
+            {
+//            if(node1[i].y==node1[0].y&&i+50>start)
+//            {
+////                printf("%d %d\n",node1[i].x,node1[i].y);
+//                node2[i].x=node1[i].x;
+//                node2[i].y=node1[i].y;
+//                start2=i;
+//                break;
+//            }
+//            printf("%d %d\n",node1[i].x,node1[i].y);
+                node2[i].x=node1[i].x;
+                node2[i].y=node1[i].y;
+            }
+//        for(int i=0;i<=start2;i++)
+//        {
+//            printf("%d %d\n",node2[i].x,node2[i].y);
+//        }
+            for(int i=0; i<start2; i++) //start2 finish value
+            {
+                if((node2[i+1].x-node2[i].x==0)&&(node2[i+1].y-node2[i].y!=0))
+                    node2[i].xl=0;
+                if((node2[i+1].x-node2[i].x!=0)&&(node2[i+1].y-node2[i].y==0))
+                    node2[i].xl=1;
+//        printf("%d %d %f\n",node2[i].x,node2[i].y,node2[i].xl);
+            }
+            for(int i=0; i<start2; i++)
+            {
+                for(int j=i+1; j<=i+5; j++)
+                {
+                    if((node2[i].x!=node2[j].x)&&(node2[i].y!=node2[j].y))
+                    {
+//                node2[i].xl=float(float(node2[i].y-node2[j].y)/float(node2[i].x-node2[j].x));
+//                for(int k=i+1;k<=j-1;k++)
+//                    node2[k].xl=node2[i].xl;
+                        node2[i].xl=float(float(node2[i].y-node2[j].y)/float(node2[i].x-node2[j].x));
+                        i=j;
+                        break;
+                    }
+                }
+            }
+//        for(int i=0; i<=start; i++)
+//        {
+//            if(node2[i].xl==0&&i+50>start)
+//            {
+//                node2[i].xl=node2[0].xl;
+//            }
+//        }
+            for(int i=0; i<start2; i++)
+            {
+                node2[i].alter=node2[i+1].xl-node2[i].xl;
+                if(node2[i].alter>=-5.5&&node2[i].alter<-4.5)
+                    node2[i].ch1='o';
+                if(node2[i].alter>=-4.5&&node2[i].alter<-3.5)
+                    node2[i].ch1='a';
+                else if(node2[i].alter>=-3.5&&node2[i].alter<-2.5)
+                    node2[i].ch1='b';
+                else if(node2[i].alter>=-2.5&&node2[i].alter<-1.5)
+                    node2[i].ch1='c';
+                else if(node2[i].alter>=-1.5&&node2[i].alter<-0.5)
+                    node2[i].ch1='d';
+                else if(node2[i].alter>=-0.5&&node2[i].alter<0.5)
+                    node2[i].ch1='e';
+                else if(node2[i].alter>=0.5&&node2[i].alter<1.5)
+                    node2[i].ch1='f';
+                else if(node2[i].alter>=1.5&&node2[i].alter<2.5)
+                    node2[i].ch1='g';
+                else if(node2[i].alter>=2.5&&node2[i].alter<3.5)
+                    node2[i].ch1='h';
+                else if(node2[i].alter>=3.5&&node2[i].alter<4.5)
+                    node2[i].ch1='i';
+                else if(node2[i].alter>=4.5&&node2[i].alter<5.5)
+                    node2[i].ch1='j';
+                else
+                    node2[i].ch1='k';
+            }
+            for(int i=0; i<start2; i++)
+            {
+                if(node2[i].alter==0)
+                    node2[i].ch2='*';
+                if(node2[i].alter>0&&node2[i].alter<=3)
+                    node2[i].ch2='a';
+                if(node2[i].alter>3)
+                    node2[i].ch2='b';
+                if(node2[i].alter<0&&node2[i].alter>=-3)
+                    node2[i].ch2='c';
+                if(node2[i].alter<-3)
+                    node2[i].ch2='d';
+            }
+
+
+            for(int i=0; i<start2-1; i++)
+            {
+                if((node2[i].y>node2[i+1].y)&&(i+20>start2))
+                {
+                    start2=i;
+                    break;
+                }
+            }
+
+            for(int i=0; i<start2-5; i++)
+            {
+//        printf("%f %f %f %f %c %c\n",node2[i].x,node2[i].y,node2[i].xl,node2[i].alter,node2[i].ch1,node2[i].ch2);
+                fprintf(fp2,"%f %f %f %f %c %c\n",node2[i].x,node2[i].y,node2[i].xl,node2[i].alter,node2[i].ch1,node2[i].ch2);
+            }
+            fclose(fp1);
+            fclose(fp2);
+        }
+        files=0;
+
+
+
+
+        //1 down
+        long Handle3;
+        struct _finddata_t FileInfo2;
+        if((Handle3=_findfirst("..\\Intermediate_process\\DOWNN\\*.txt",&FileInfo2))==-1L)
+            printf("no find files\n");
+        else
+        {
+            files++;
+            while(_findnext(Handle3,&FileInfo2)==0)
+                files++;
+            _findclose(Handle3);
+        }
+        char sword3[50],sword4[50];
+
+        mkdir("..\\Intermediate_process\\downn_inf");
+
+        for(int nn=1; nn<=files; nn++)
+        {
+            printf("down- %d\n",nn);
+
+            start=0;
+            bj=0;
+            memset(sword3,0,sizeof(sword3));
+            memset(sword4,0,sizeof(sword4));
+            memset(node1,0,sizeof(node1));
+            memset(node2,0,sizeof(node2));
+            memset(step,0,sizeof(step));
+            memset(vlaue,0,sizeof(vlaue));
+            sprintf(sword3,"..\\Intermediate_process\\DOWNN\\%d.txt",nn);
+            sprintf(sword4,"..\\Intermediate_process\\downn_inf\\%d.txt",nn);
+            FILE *fp1,*fp2;
+            if((fp1=fopen(sword3,"r"))==NULL)
+            {
+                printf("fp1 error occur!\n");
+                exit(1);
+            }
+            if((fp2=fopen(sword4,"w"))==NULL)
+            {
+                printf("fp2 error occur!\n");
+                exit(1);
+            }
+            int m=0,n=0,n1=0;
+            char ch;
+            while((fscanf(fp1,"%d",&vlaue[m][n1]))!=EOF)
+            {
+                n1++;
+                if((ch=fgetc(fp1))=='\n')
+                {
+                    n=n1;
+                    n1=0;
+                    m++;
+                }
+            }
+            int ff=0;
+            for(int j=0; j<n; j++)
+            {
+                ff=0;
+                start=0;
+                for(int i=0; i<m; i++)
+                {
+                    if((vlaue[i-1][j]==1)&&(vlaue[i-2][j]==1)&&(vlaue[i+1][j]==0)&&(vlaue[i+2][j]==0)&&vlaue[i+20][j]==1)
+                    {
+                        ii1=i;
+                        jj1=j;
+                        dfs(i,j);
+                        if(start<50)
+                        {
+                            bj=0;
+                            memset(step,0,sizeof(step));
+                            memset(node1,0,sizeof(node1));
+                            break;
+                        }
+//                printf("%d %d\n",ii1,jj1);
+                        ff=1;
+                        break;
+                    }
+                }
+                if(ff==1)
+                    break;
+            }
+//    printf("%d %d\n",m,n);
+//    for(int i=0; i<m; i++)
+//    {
+//        for(int j=0; j<n; j++)
+//        {
+//            printf("%d ",vlaue[i][j]);
+//        }
+//        printf("\n");
+//    }
+            int start2;
+            start2=(start+1)/2-10;
+            for(int i=0; i<start2; i++)
+            {
+//            if(node1[i].y==node1[0].y&&i+50>start)
+//            {
+////                printf("%d %d\n",node1[i].x,node1[i].y);
+//                node2[i].x=node1[i].x;
+//                node2[i].y=node1[i].y;
+//                start2=i;
+//                break;
+//            }
+//            printf("%d %d\n",node1[i].x,node1[i].y);
+                node2[i].x=node1[i].x;
+                node2[i].y=node1[i].y;
+            }
+//        for(int i=0;i<=start2;i++)
+//        {
+//            printf("%d %d\n",node2[i].x,node2[i].y);
+//        }
+            for(int i=0; i<start2; i++) //start2 finish value
+            {
+                if((node2[i+1].x-node2[i].x==0)&&(node2[i+1].y-node2[i].y!=0))
+                    node2[i].xl=0;
+                if((node2[i+1].x-node2[i].x!=0)&&(node2[i+1].y-node2[i].y==0))
+                    node2[i].xl=1;
+//        printf("%d %d %f\n",node2[i].x,node2[i].y,node2[i].xl);
+            }
+            for(int i=0; i<start2; i++)
+            {
+                for(int j=i+1; j<=i+5; j++)
+                {
+                    if((node2[i].x!=node2[j].x)&&(node2[i].y!=node2[j].y))
+                    {
+//                node2[i].xl=float(float(node2[i].y-node2[j].y)/float(node2[i].x-node2[j].x));
+//                for(int k=i+1;k<=j-1;k++)
+//                    node2[k].xl=node2[i].xl;
+                        node2[i].xl=float(float(node2[i].y-node2[j].y)/float(node2[i].x-node2[j].x));
+                        i=j;
+                        break;
+                    }
+                }
+            }
+//        for(int i=0; i<=start; i++)
+//        {
+//            if(node2[i].xl==0&&i+50>start)
+//            {
+//                node2[i].xl=node2[0].xl;
+//            }
+//        }
+            for(int i=0; i<start2; i++)
+            {
+                node2[i].alter=node2[i+1].xl-node2[i].xl;
+                if(node2[i].alter>=-5.5&&node2[i].alter<-4.5)
+                    node2[i].ch1='o';
+                if(node2[i].alter>=-4.5&&node2[i].alter<-3.5)
+                    node2[i].ch1='a';
+                else if(node2[i].alter>=-3.5&&node2[i].alter<-2.5)
+                    node2[i].ch1='b';
+                else if(node2[i].alter>=-2.5&&node2[i].alter<-1.5)
+                    node2[i].ch1='c';
+                else if(node2[i].alter>=-1.5&&node2[i].alter<-0.5)
+                    node2[i].ch1='d';
+                else if(node2[i].alter>=-0.5&&node2[i].alter<0.5)
+                    node2[i].ch1='e';
+                else if(node2[i].alter>=0.5&&node2[i].alter<1.5)
+                    node2[i].ch1='f';
+                else if(node2[i].alter>=1.5&&node2[i].alter<2.5)
+                    node2[i].ch1='g';
+                else if(node2[i].alter>=2.5&&node2[i].alter<3.5)
+                    node2[i].ch1='h';
+                else if(node2[i].alter>=3.5&&node2[i].alter<4.5)
+                    node2[i].ch1='i';
+                else if(node2[i].alter>=4.5&&node2[i].alter<5.5)
+                    node2[i].ch1='j';
+                else
+                    node2[i].ch1='k';
+            }
+            for(int i=0; i<start2; i++)
+            {
+                if(node2[i].alter==0)
+                    node2[i].ch2='*';
+                if(node2[i].alter>0&&node2[i].alter<=3)
+                    node2[i].ch2='a';
+                if(node2[i].alter>3)
+                    node2[i].ch2='b';
+                if(node2[i].alter<0&&node2[i].alter>=-3)
+                    node2[i].ch2='c';
+                if(node2[i].alter<-3)
+                    node2[i].ch2='d';
+            }
+
+
+            for(int i=0; i<start2-1; i++)
+            {
+                if((node2[i].y>node2[i+1].y)&&(i+20>start2))
+                {
+                    start2=i;
+                    break;
+                }
+            }
+
+            for(int i=0; i<start2-5; i++)
+            {
+//        printf("%f %f %f %f %c %c\n",node2[i].x,node2[i].y,node2[i].xl,node2[i].alter,node2[i].ch1,node2[i].ch2);
+                fprintf(fp2,"%f %f %f %f %c %c\n",node2[i].x,node2[i].y,node2[i].xl,node2[i].alter,node2[i].ch1,node2[i].ch2);
+            }
+            fclose(fp1);
+            fclose(fp2);
+        }
+        files=0;
+
+
+
+
+
+
+
+        //2
+        printf("Step 2 record similarity,The front is the top, the back is the bottom\n");
+        long Handle1,Handle2;
+        struct _finddata_t FileInfo11, FileInfo22;
+        if((Handle1=_findfirst("..\\Intermediate_process\\upp_inf\\*.txt",&FileInfo11))==-1L)
+            printf("no find files\n");
+        else
+        {
+            files1++;
+            while(_findnext(Handle1,&FileInfo11)==0)
+                files1++;
+            _findclose(Handle1);
+        }
+        if((Handle2=_findfirst("..\\Intermediate_process\\downn_inf\\*.txt",&FileInfo22))==-1L)  //d:\\xia1\\*.txt
+            printf("no find files\n");
+        else
+        {
+            files2++;
+            while(_findnext(Handle2,&FileInfo22)==0)
+                files2++;
+            _findclose(Handle2);
+        }
+        struct nod nod1[1000],nod2[1000],nod3[1000],nod4[1000];
+//    printf("%d %d\n",files1,files2);
+        FILE *fp4;
+        if((fp4=fopen("..\\Intermediate_process\\compare_inf.txt","w"))==NULL)  //d:\\newcompare11.txt
+        {
+            printf("fp4 error occur!\n");
+            exit(1);
+        }
+        fclose(fp4);
+
+
+        for(int first=1; first<=files1; first++)
+        {
+            char s[500];
+            sprintf(s,"..\\Intermediate_process\\upp_inf\\%d.txt",first);
+            for(int second=1; second<=files2; second++)
+            {
+//            printf("%d %d \n",files1,files2);
+//            getchar();
+//            getchar();
+                memset(nod1,0,sizeof(nod1));
+                memset(nod2,0,sizeof(nod2));
+                memset(nod3,0,sizeof(nod3));
+                memset(nod4,0,sizeof(nod4));
+
+
+                printf("up- %d    down- %d\n",first,second);
+
+
+                FILE *fp1,*fp2,*fp3;
+//            FILE *fp4,*fp5,*fp6;  //测试群组
+                m=0,n=0,nn=0;
+                memset(num1,0,sizeof(num1));
+                memset(num2,0,sizeof(num2));
+                memset(num3,0,sizeof(num3));
+                memset(str1,0,sizeof(str1));
+                memset(str2,0,sizeof(str2));
+                memset(str3,0,sizeof(str3));
+                memset(str4,0,sizeof(str4));
+                memset(str5,0,sizeof(str5));
+                memset(str6,0,sizeof(str6));
+                char s1[500];
+                sprintf(s1,"..\\Intermediate_process\\downn_inf\\%d.txt",second);
+                if((fp1=fopen(s,"r"))==NULL)
+                {
+                    printf("fp1 error occur!\n");
+                    exit(1);
+                }
+                if((fp2=fopen(s1,"r"))==NULL)
+                {
+                    printf("fp2 error occur!\n");
+                    exit(1);
+                }
+                if((fp3=fopen("..\\Intermediate_process\\compare_inf.txt","a"))==NULL)  //d:\\newcompare11.txt
+                {
+                    printf("fp3 error occur!\n");
+                    exit(1);
+                }
+                //测试
+//            if((fp4=fopen("..\\Intermediate_process\\compare1111.txt","a"))==NULL)
+//            {
+//                printf("fp4 error occur!\n");
+//                exit(1);
+//            }
+//            if((fp5=fopen("..\\Intermediate_process\\compare11111.txt","a"))==NULL)
+//            {
+//                printf("fp5 error occur!\n");
+//                exit(1);
+//            }
+//             if((fp6=fopen("d:\\newcompare111.txt","a"))==NULL)
+//            {
+//                printf("fp6 error occur!\n");
+//                exit(1);
+//            }
+
+                int start1=0,start2=0,start3=0,start4=0,start5=0,start6=0,s7=0,s8=0;
+                float str7[5000],str8[5000];
+                memset(str7,0,sizeof(str7));
+                memset(str8,0,sizeof(str8));
+                float a,b;
+                while(fscanf(fp1,"%f %f %f %f %c %c\n",&nod1[start1].x,&nod1[start1].y,&a,&str7[s7++],&str1[start1++],&str3[start3++])!=EOF)
+                {}
+                while(fscanf(fp2,"%f %f %f %f %c %c\n",&nod2[start2].x,&nod2[start2].y,&b,&str8[s8++],&str2[start2++],&str4[start4++])!=EOF)
+                {}
+                //DTW
+                float minnn=99999999;
+                memset(dist,0,sizeof(dist));
+                memset(output,0,sizeof(output));
+                float dtw2;
+
+
+
+                for(int i=0; i<start3; i++)
+                {
+                    if(str3[i]!='*')
+                        str5[start5++]=str3[i];
+                }
+                for(int i=0; i<start4; i++)
+                {
+                    if(str4[i]!='*')
+                        str6[start6++]=str4[i];
+                }
+                int start8=max(start5,start6);
+                int start7=max(start1,start2); //5,6 no good 3,4 no good
+                int t1=0,t2=0;
+                int f1=1,f2=1,f3=0,f4=0;
+                int zj1=0,zj2=0,zj=0,zj3=0,zj4=0,zj5=0;
+                int T1,T2;
+                int temp1;
+                int temp2;
+                while((t1<start1)&&(t2<start2))  //1,2 compare
+                {
+                    int tt1=0;
+                    int tt2=0;
+                    tt2=t2;
+                    f1=1;
+                    f2=1;
+                    f3=0;
+                    f4=0;
+                    while(str1[t1]!=str2[tt2])
+                    {
+                        tt2++;
+                        f1++;
+                        if(f1>6)
+                        {
+                            f1=0;
+                            break;
+                        }
+                    }
+                    if(f1==0)
+                    {
+                        tt1=t1;
+                        while(str2[t2]!=str1[tt1])
+                        {
+                            tt1++;
+                            f2++;
+                            if(f2>6)
+                            {
+                                f2=0;
+                                break;
+                            }
+                        }
+                    }
+//                printf("*** \n");
+//                printf("%d %d>\n",t1,t2);
+                    if(f1==0&&f2==0)
+                    {
+                        t1+=1;
+                        t2+=1;
+                    }
+                    else
+                    {
+                        if(str1[t1]==str2[tt2])
+                        {
+                            T1=t1+1;
+//                       printf("*** \n");
+                            int mi1=0,mi2=0;
+                            int mi3=0,mi4=0;
+                            if((str1[t1-1]=='o'||str1[t1-1]=='a'||str1[t1-1]=='b'||str1[t1-1]=='c'||str1[t1-1]=='d'||str3[t1-1]=='c')&&(str2[tt2-1]=='f'||str2[tt2-1]=='g'||str2[tt2-1]=='h'||str2[tt2-1]=='I'||str2[tt2-1]=='j'||str4[tt2-1]=='a'))
+                                mi1=1;
+                            if(str3[t1-1]=='d'&&str4[tt2-1]=='b')
+                                mi3=1;
+                            if((str1[t1-1]=='f'||str1[t1-1]=='g'||str1[t1-1]=='h'||str1[t1-1]=='i'||str1[t1-1]=='j'||str3[t1-1]=='a')&&(str2[tt2-1]=='o'||str2[tt2-1]=='a'||str2[tt2-1]=='b'||str2[tt2-1]=='c'||str2[tt2-1]=='d'||str4[tt2-1]=='c'))
+                                mi2=1;
+                            if(str3[t1-1]=='b'&&str4[tt2-1]=='d')
+                                mi4=1;
+                            while(str1[t1++]==str2[tt2++])
+                            {
+
+
+                                zj1++;
+                                f4++;
+                            }
+                            if(f4<=3)
+                            {
+                                zj1-=f4;
+                                f4=0;
+                                t1=T1;
+
+                                continue;
+                            }
+                            else
+                            {
+//                            printf("1-1 %c %c %c %c\n",str1[t1-1],str2[tt2-1],str3[t1-1],str4[tt2-1]);
+//                            if(str7[t1-1]==str8[tt2-1]||str7[t1]==str8[tt2])
+//                            {
+//                                zj1+=20;
+//                            }
+                                if((str1[t1]=='f'||str1[t1]=='g'||str1[t1]=='h'||str1[t1]=='i'||str1[t1]=='j'||str3[t1]=='a')&&(str2[tt2]=='o'||str2[tt2]=='a'||str2[tt2]=='b'||str2[tt2]=='c'||str2[tt2]=='d'||str4[tt2]=='c')&&mi1==1)
+                                {
+//                                    temp1=0;
+                                    zj1-=50;
+//                                    temp1=t1;
+                                }
+                                if(str3[t1]=='b'&&str4[tt2]=='d'&&mi3==1)
+                                    zj1-=100;
+                                if(str3[t1]=='a'&&str4[tt2]=='c'&&mi3==1)
+                                    zj1-=100;
+                                if((str1[t1]=='o'||str1[t1]=='a'||str1[t1]=='b'||str1[t1]=='c'||str1[t1]=='d'||str3[t1]=='c')&&(str2[tt2]=='f'||str2[tt2]=='g'||str2[tt2]=='h'||str2[tt2]=='i'||str2[tt2]=='j'||str4[tt2]=='a')&&mi2==1)
+                                    zj1-=50;
+                                if(str3[t1]=='d'&&str4[tt2]=='b'&&mi4==1)
+                                    zj1-=100;
+                                if(str3[t1]=='c'&&str4[tt2]=='a'&&mi4==1)
+                                    zj1-=100;
+//                            if((str1[t1]=='o'||str1[t1]=='a'||str1[t1]=='b'||str1[t1]=='c'||str1[t1]=='d')&&(str2[tt2]=='f'||str2[tt2]=='g'||str2[tt2]=='h'||str2[tt2]=='i'||str2[tt2]=='j')&&mi2==1&&(t1-20<temp1))
+//                                zj1-=50;
+                            }
+                            t1-=1;
+                            t2=tt2-1;
+                            continue;
+                        }
+                        if(str1[tt1]==str2[t2])
+                        {
+                            T2=t2+1;
+                            int mi1=0,mi2=0;
+                            int mi3=0,mi4=0;
+                            if((str1[tt1-1]=='o'||str1[tt1-1]=='a'||str1[tt1-1]=='b'||str1[tt1-1]=='c'||str1[tt1-1]=='d'||str3[tt1-1]=='c')&&(str2[t2-1]=='f'||str2[t2-1]=='g'||str2[t2-1]=='h'||str2[t2-1]=='I'||str2[t2-1]=='j'||str4[t2-1]=='a'))
+                                mi1=1;
+                            if(str3[tt1-1]=='d'&&str4[t2-1]=='b')
+                                mi3=1;
+                            if((str1[tt1-1]=='f'||str1[tt1-1]=='g'||str1[tt1-1]=='h'||str1[tt1-1]=='i'||str1[tt1-1]=='j'||str3[tt1-1]=='a')&&(str2[t2-1]=='o'||str2[t2-1]=='a'||str2[t2-1]=='b'||str2[t2-1]=='c'||str2[t2-1]=='d'||str4[t2-1]=='c'))
+                                mi2=1;
+                            if(str3[tt1-1]=='b'&&str4[t2-1]=='d')
+                                mi4=1;
+//                       printf("###\n");
+                            while(str1[tt1++]==str2[t2++])
+                            {
+
+                                zj1++;
+                                f3++;
+                            }
+                            if(f3<=3)
+                            {
+                                zj1-=f3;
+                                f3=0;
+                                t2=T2;
+                                continue;
+                            }
+                            else
+                            {
+//                            printf("1-2 %c %c %c %c\n",str1[tt1-1],str2[t2-1],str3[tt1-1],str4[t2-1]);
+//                            if(str7[tt1-1]==str8[t2-1]||str7[tt1]==str8[t2])
+//                                zj1+=20;
+                                if((str1[tt1]=='f'||str1[tt1]=='g'||str1[tt1]=='h'||str1[tt1]=='i'||str1[tt1]=='j'||str3[tt1]=='a')&&(str2[t2]=='o'||str2[t2]=='a'||str2[t2]=='b'||str2[t2]=='c'||str2[t2]=='d'||str4[t2]=='c')&&mi1==1)
+                                {
+//                                    temp1=0;
+                                    zj1-=50;
+//                                    temp1=t2;
+                                }
+                                if(str3[tt1]=='b'&&str4[t2]=='d'&&mi3==1) //enlarge
+                                    zj1-=100;
+                                if(str3[tt1]=='a'&&str4[t2]=='c'&&mi3==1)
+                                    zj1-=100;
+                                if((str1[tt1]=='o'||str1[tt1]=='a'||str1[tt1]=='b'||str1[tt1]=='c'||str1[tt1]=='g'||str3[tt1]=='c')&&(str2[t2]=='f'||str2[t2]=='g'||str2[t2]=='h'||str2[t2]=='i'||str2[t2]=='j'||str4[t2]=='a')&&mi2==1)
+                                    zj1-=50;
+                                if(str3[tt1]=='d'&&str4[t2]=='b'&&mi4==1)
+                                    zj1-=100;
+                                if(str3[tt1]=='c'&&str4[t2]=='a'&&mi4==1)
+                                    zj1-=100;
+//                            if((str1[tt1]=='o'||str1[tt1]=='a'||str1[tt1]=='b'||str1[tt1]=='c'||str1[tt1]=='g')&&(str2[t2]=='f'||str2[t2]=='g'||str2[t2]=='h'||str2[t2]=='i'||str2[t2]=='j')&&(temp1+20>t2))
+//                                zj1-=50;
+                            }
+                            t1=tt1-1;
+                            t2-=1;
+                        }
+                    }
+                }
+
+                t1=0,t2=0;
+                temp2=0;
+                while((t1<start1)&&(t2<start2))
+                {
+                    int tt1=0;
+                    int tt2=0;
+                    tt1=t1;
+                    f1=1;
+                    f2=1;
+                    f3=0;
+                    f4=0;
+                    while(str2[t2]!=str1[tt1])
+                    {
+                        tt1++;
+                        f2++;
+                        if(f2>6)
+                        {
+                            f2=0;
+                            break;
+                        }
+                    }
+                    if(f2==0)
+                    {
+                        tt2=t2;
+                        while(str1[t1]!=str2[tt2])
+                        {
+                            tt2++;
+                            f1++;
+                            if(f1>6)
+                            {
+                                f1=0;
+                                break;
+                            }
+                        }
+
+                    }
+//                printf("*** \n");
+//                printf("%d %d>\n",t1,t2);
+                    if(f1==0&&f2==0)
+                    {
+                        t1+=1;
+                        t2+=1;
+                    }
+                    else
+                    {
+                        if(str1[tt1]==str2[t2])
+                        {
+                            T2=t2+1;
+                            int mi1=0,mi2=0;
+                            int mi3=0,mi4=0;
+                            if((str1[tt1-1]=='o'||str1[tt1-1]=='a'||str1[tt1-1]=='b'||str1[tt1-1]=='c'||str1[tt1-1]=='d'||str3[tt1-1]=='c')&&(str2[t2-1]=='f'||str2[t2-1]=='g'||str2[t2-1]=='h'||str2[t2-1]=='I'||str2[t2-1]=='j'||str4[t2-1]=='a'))
+                                mi1=1;
+                            if(str3[tt1-1]=='d'&&str4[t2-1]=='b')
+                                mi3=1;
+                            if((str1[tt1-1]=='f'||str1[tt1-1]=='g'||str1[tt1-1]=='h'||str1[tt1-1]=='i'||str1[tt1-1]=='j'||str3[tt1-1]=='a')&&(str2[t2-1]=='o'||str2[t2-1]=='a'||str2[t2-1]=='b'||str2[t2-1]=='c'||str2[t2-1]=='d'||str4[t2-1]=='c'))
+                                mi2=1;
+                            if(str3[tt1-1]=='b'&&str4[t2-1]=='d')
+                                mi4=1;
+//                       printf("###\n");
+                            while(str1[tt1++]==str2[t2++])
+                            {
+
+                                zj2++;
+                                f3++;
+                            }
+                            if(f3<=3)
+                            {
+                                zj2-=f3;
+                                f3=0;
+                                t2=T2;
+                                continue;
+                            }
+                            else
+                            {
+//                            printf("2-1 %c %c %c %c\n",str1[tt1-1],str2[t2-1],str3[tt1-1],str4[t2-1]);
+//                            if(str7[tt1-1]==str8[t2-1]||str7[tt1]==str8[t2])
+//                                zj2+=20;
+                                if((str1[tt1]=='f'||str1[tt1]=='g'||str1[tt1]=='h'||str1[tt1]=='i'||str1[tt1]=='j'||str3[tt1]=='a')&&(str2[t2]=='o'||str2[t2]=='a'||str2[t2]=='b'||str2[t2]=='c'||str2[t2]=='d'||str4[t2]=='c')&&mi1==1)
+                                {
+//                                   temp2=0;
+                                    zj2-=50;
+//                                    temp2=t2;
+                                }
+                                if(str3[tt1]=='b'&&str4[t2]=='d'&&mi3==1)
+                                    zj2-=100;
+                                if(str3[tt1]=='a'&&str4[t2]=='c'&&mi3==1)
+                                    zj2-=100;
+                                if((str1[tt1]=='o'||str1[tt1]=='a'||str1[tt1]=='b'||str1[tt1]=='c'||str1[tt1]=='g'||str3[tt1]=='c')&&(str2[t2]=='f'||str2[t2]=='g'||str2[t2]=='h'||str2[t2]=='i'||str2[t2]=='j'||str4[t2]=='a')&&mi2==1)
+                                    zj2-=50;
+                                if(str3[tt1]=='d'&&str4[t2]=='b'&&mi4==1)
+                                    zj2-=100;
+                                if(str3[tt1]=='c'&&str4[t2]=='a'&&mi4==1)
+                                    zj2-=100;
+//                            if((str1[tt1]=='o'||str1[tt1]=='a'||str1[tt1]=='b'||str1[tt1]=='c'||str1[tt1]=='g')&&(str2[t2]=='f'||str2[t2]=='g'||str2[t2]=='h'||str2[t2]=='i'||str2[t2]=='j')&&mi2==1&&(temp2+20>t2))
+//                                zj2-=50;
+                            }
+                            t1=tt1-1;
+                            t2-=1;
+                            continue;
+                        }
+
+                        if(str1[t1]==str2[tt2])
+                        {
+                            T1=t1+1;
+//                       printf("*** \n");
+                            int mi1=0,mi2=0;
+                            int mi3=0,mi4=0;
+                            if((str1[t1-1]=='o'||str1[t1-1]=='a'||str1[t1-1]=='b'||str1[t1-1]=='c'||str1[t1-1]=='d'||str3[t1-1]=='c')&&(str2[tt2-1]=='f'||str2[tt2-1]=='g'||str2[tt2-1]=='h'||str2[tt2-1]=='I'||str2[tt2-1]=='j'||str4[tt2-1]=='a'))
+                                mi1=1;
+                            if(str3[t1-1]=='d'&&str4[tt2-1]=='b')
+                                mi3=1;
+                            if((str1[t1-1]=='f'||str1[t1-1]=='g'||str1[t1-1]=='h'||str1[t1-1]=='i'||str1[t1-1]=='j'||str3[t1-1]=='a')&&(str2[tt2-1]=='o'||str2[tt2-1]=='a'||str2[tt2-1]=='b'||str2[tt2-1]=='c'||str2[tt2-1]=='d'||str4[tt2-1]=='c'))
+                                mi2=1;
+                            if(str3[t1-1]=='b'&&str4[tt2-1]=='d')
+                                mi4=1;
+                            while(str1[t1++]==str2[tt2++])
+                            {
+
+                                zj2++;
+                                f4++;
+                            }
+                            int temp1;
+                            if(f4<=3)
+                            {
+                                zj2-=f4;
+                                f4=0;
+                                t1=T1;
+                                continue;
+                            }
+                            else
+                            {
+//                        printf("2-2 %c %c %c %c\n",str1[t1-1],str2[tt2-1],str3[t1-1],str4[tt2-1]);
+//                        if(str7[t1-1]==str8[tt2-1]||str7[t1]==str8[tt2])
+//                            zj2+=20;
+                                if((str1[t1]=='f'||str1[t1]=='g'||str1[t1]=='h'||str1[t1]=='i'||str1[t1]=='j'||str3[t1]=='a')&&(str2[tt2]=='o'||str2[tt2]=='a'||str2[tt2]=='b'||str2[tt2]=='c'||str2[tt2]=='d'||str4[tt2]=='c')&&mi1==1)
+                                {
+//                                temp2=0;
+                                    zj2-=50;
+//                                temp2=t1;
+                                }
+                                if(str3[t1]=='b'&&str4[tt2]=='d'&&mi3==1)
+                                    zj2-=100;
+                                if(str3[t1]=='a'&&str4[tt2]=='c'&&mi3==1)
+                                    zj2-=100;
+                                if((str1[t1]=='o'||str1[t1]=='a'||str1[t1]=='b'||str1[t1]=='c'||str1[t1]=='d'||str3[t1]=='c')&&(str2[tt2]=='f'||str2[tt2]=='g'||str2[tt2]=='h'||str2[tt2]=='i'||str2[tt2]=='j'||str4[tt2]=='a')&&mi2==1)
+                                    zj2-=50;
+                                if(str3[t1]=='d'&&str4[tt2]=='b'&&mi4==1)
+                                    zj2-=100;
+                                if(str3[t1]=='c'&&str4[tt2]=='a'&&mi4==1)
+                                    zj2-=100;
+//                        if((str1[t1]=='o'||str1[t1]=='a'||str1[t1]=='b'||str1[t1]=='c'||str1[t1]=='d')&&(str2[tt2]=='f'||str2[tt2]=='g'||str2[tt2]=='h'||str2[tt2]=='i'||str2[tt2]=='j')&&mi2==1&&(temp2+20>t1))
+//                            zj2-=50;
+                            }
+                            t1-=1;
+                            t2=tt2-1;
+                        }
+                    }
+
+
+                }
+                if(zj1>start7)
+                    zj1=0;
+                if(zj2>start7)
+                    zj2=0;
+                zj=(zj1+zj2)/2;
+                if(zj<0)
+                    zj=0;
+//            zj=max(zj1,zj2);
+////////////////////            printf("%d %d %d %d\n",start7,zj1,zj2,zj);
+
+
+
+
+                int s78=0;
+                s78=max(s7,s8);
+                t1=0,t2=0;
+                int newzj1=0,newzj2=0,newzj=0;
+                while((t1<s7)&&(t2<s8))  //7,8 compare
+                {
+
+                    int tt1=0;
+                    int tt2=0;
+                    tt2=t2;
+                    f1=1;
+                    f2=1;
+                    f3=0;
+                    f4=0;
+                    while(str7[t1]!=str8[tt2])
+                    {
+                        tt2++;
+                        f1++;
+                        if(f1>6)
+                        {
+                            f1=0;
+                            break;
+                        }
+                    }
+                    if(f1==0)
+                    {
+                        tt1=t1;
+                        while(str8[t2]!=str7[tt1])
+                        {
+                            tt1++;
+                            f2++;
+                            if(f2>6)
+                            {
+                                f2=0;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(f1==0&&f2==0)
+                    {
+                        t1+=1;
+                        t2+=1;
+                    }
+                    else
+                    {
+                        if(str7[t1]==str8[tt2]&&f1!=0&&f2==1)
+                        {
+                            T1=t1+1;
+//
+                            while(str7[t1++]==str8[tt2++])
+                            {
+
+
+                                newzj1++;
+                                f4++;
+                            }
+                            if(f4<=3)
+                            {
+                                newzj1-=f4;
+                                f4=0;
+                                t1=T1;
+                                continue;
+                            }
+//
+                            t1-=1;
+                            t2=tt2-1;
+                            continue;
+                        }
+                        if(str7[tt1]==str8[t2]&&f1==0&&f2!=0)
+                        {
+                            T2=t2+1;
+//
+                            while(str7[tt1++]==str8[t2++])
+                            {
+
+                                newzj1++;
+                                f3++;
+                            }
+                            if(f3<=3)
+                            {
+                                newzj1-=f3;
+                                f3=0;
+                                t2=T2;
+                                continue;
+                            }
+//
+                            t1=tt1-1;
+                            t2-=1;
+                        }
+                    }
+                }
+                t1=0,t2=0;
+                while((t1<s7)&&(t2<s8))
+                {
+                    int tt1=0;
+                    int tt2=0;
+                    tt1=t1;
+                    f1=1;
+                    f2=1;
+                    f3=0;
+                    f4=0;
+                    while(str8[t2]!=str7[tt1])
+                    {
+                        tt1++;
+                        f2++;
+                        if(f2>6)
+                        {
+                            f2=0;
+                            break;
+                        }
+                    }
+                    if(f2==0)
+                    {
+                        tt2=t2;
+                        while(str7[t1]!=str8[tt2])
+                        {
+                            tt2++;
+                            f1++;
+                            if(f1>6)
+                            {
+                                f1=0;
+                                break;
+                            }
+                        }
+
+                    }
+                    if(f1==0&&f2==0)
+                    {
+                        t1+=1;
+                        t2+=1;
+                    }
+                    else
+                    {
+                        if(str7[tt1]==str8[t2]&&f2!=0&&f1==1)
+                        {
+                            T2=t2+1;
+//
+                            while(str7[tt1++]==str8[t2++])
+                            {
+
+                                newzj2++;
+                                f3++;
+                            }
+                            if(f3<=3)
+                            {
+                                newzj2-=f3;
+                                f3=0;
+                                t2=T2;
+                                continue;
+                            }
+
+                            t1=tt1-1;
+                            t2-=1;
+                            continue;
+                        }
+
+
+
+                        if(str7[t1]==str8[tt2]&&f2==0&&f1!=0)
+                        {
+                            T1=t1+1;
+
+                            while(str7[t1++]==str8[tt2++])
+                            {
+
+                                newzj2++;
+                                f4++;
+                            }
+                            int temp1;
+                            if(f4<=3)
+                            {
+                                newzj2-=f4;
+                                f4=0;
+                                t1=T1;
+                                continue;
+                            }
+                            t1-=1;
+                            t2=tt2-1;
+                        }
+                    }
+                }
+
+                int ss78=0;
+
+                if(newzj1>=s78)
+                {
+                    newzj1=0;
+                    ss78=newzj2;
+                }
+                if(newzj2>=s78)
+                {
+                    newzj2=0;
+                    ss78=newzj1;
+                }
+
+                if(newzj1!=0&&newzj2!=0)
+                    ss78=(newzj1+newzj2)/2;
+                if(ss78<0)
+                    ss78=0;
+//////////////////            printf("%d %d %d %d %.2f\n",s78,newzj1,newzj2,ss78,ss78*1.0/s78);
+
+
+                int S7=s7,S8=s8;
+
+                if(s7>=s78)
+                    s7=0;
+                if(s8>=s78)
+                    s8=0;
+////////////////            printf("%d %d %.2f\n",s7,s8,(s7+s8)*1.0/2.0/s78);
+
+
+
+                float mix=0; //  <-
+
+                float devide=2;
+                while(devide<=5)
+                {
+                    t1=S7/devide;
+                    t2=S8/devide;
+//            printf("%f %f\n",str7[t1],str8[t2]);
+//            getchar();
+//            getchar();
+                    newzj1=0;
+                    newzj2=0;
+                    while((t1>=0)&&(t2>=0))  //7,8 reverse compare
+                    {
+
+                        int tt1=0;
+                        int tt2=0;
+                        tt2=t2;
+                        f1=1;
+                        f2=1;
+                        f3=0;
+                        f4=0;
+                        while(str7[t1]!=str8[tt2])
+                        {
+                            tt2--;
+                            f1++;
+                            if(f1>6)
+                            {
+                                f1=0;
+                                break;
+                            }
+                        }
+                        if(f1==0)
+                        {
+                            tt1=t1;
+                            while(str8[t2]!=str7[tt1])
+                            {
+                                tt1--;
+                                f2++;
+                                if(f2>6)
+                                {
+                                    f2=0;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(f1==0&&f2==0)
+                        {
+                            t1-=1;
+                            t2-=1;
+                        }
+                        else
+                        {
+                            if(str7[t1]==str8[tt2]&&f1!=0&&f2==1)
+                            {
+                                T1=t1-1;
+//
+                                while(str7[t1--]==str8[tt2--])
+                                {
+
+
+                                    newzj1++;
+                                    f4++;
+                                }
+                                if(f4<=3)
+                                {
+                                    newzj1-=f4;
+                                    f4=0;
+                                    t1=T1;
+                                    continue;
+                                }
+//
+                                t1+=1;
+                                t2=tt2+1;
+                                continue;
+                            }
+                            if(str7[tt1]==str8[t2]&&f1==0&&f2!=0)
+                            {
+                                T2=t2-1;
+//
+                                while(str7[tt1--]==str8[t2--])
+                                {
+
+                                    newzj1++;
+                                    f3++;
+                                }
+                                if(f3<=3)
+                                {
+                                    newzj1-=f3;
+                                    f3=0;
+                                    t2=T2;
+                                    continue;
+                                }
+//
+                                t1=tt1+1;
+                                t2+=1;
+                            }
+                        }
+                    }
+                    t1=S7/devide;
+                    t2=S8/devide;
+                    while((t1>=0)&&(t2>=0))
+                    {
+                        int tt1=0;
+                        int tt2=0;
+                        tt1=t1;
+                        f1=1;
+                        f2=1;
+                        f3=0;
+                        f4=0;
+                        while(str8[t2]!=str7[tt1])
+                        {
+                            tt1--;
+                            f2++;
+                            if(f2>6)
+                            {
+                                f2=0;
+                                break;
+                            }
+                        }
+                        if(f2==0)
+                        {
+                            tt2=t2;
+                            while(str7[t1]!=str8[tt2])
+                            {
+                                tt2--;
+                                f1++;
+                                if(f1>6)
+                                {
+                                    f1=0;
+                                    break;
+                                }
+                            }
+
+                        }
+                        if(f1==0&&f2==0)
+                        {
+                            t1-=1;
+                            t2-=1;
+                        }
+                        else
+                        {
+                            if(str7[tt1]==str8[t2]&&f2!=0&&f1==1)
+                            {
+                                T2=t2-1;
+                                while(str7[tt1--]==str8[t2--])
+                                {
+
+                                    newzj2++;
+                                    f3++;
+                                }
+                                if(f3<=3)
+                                {
+                                    newzj2-=f3;
+                                    f3=0;
+                                    t2=T2;
+                                    continue;
+                                }
+
+                                t1=tt1+1;
+                                t2+=1;
+                                continue;
+                            }
+
+
+
+                            if(str7[t1]==str8[tt2]&&f2==0&&f1!=0)
+                            {
+                                T1=t1-1;
+
+                                while(str7[t1--]==str8[tt2--])
+                                {
+
+                                    newzj2++;
+                                    f4++;
+                                }
+                                int temp1;
+                                if(f4<=3)
+                                {
+                                    newzj2-=f4;
+                                    f4=0;
+                                    t1=T1;
+                                    continue;
+                                }
+                                t1+=1;
+                                t2=tt2+1;
+                            }
+                        }
+                    }
+                    int sss78=0;
+                    if(newzj1>=s78)
+                    {
+                        newzj1=0;
+                        sss78=newzj2;
+                    }
+                    if(newzj2>=s78)
+                    {
+                        newzj2=0;
+                        sss78=newzj1;
+                    }
+
+                    if(newzj1!=0&&newzj2!=0)
+                        sss78=(newzj1+newzj2)/2;
+                    if(sss78<0)
+                        sss78=0;
+
+                    mix+=((sss78*1.0)/s78);
+//////////////                    printf("mix=%f\n",mix);
+                    devide++;
+                }
+
+//            int devide;
+                float mix1=0;
+                devide=2;
+                while(devide<=5)  //  ->
+                {
+                    t1=S7/devide;
+                    t2=S8/devide;
+//            printf("%f %f\n",str7[t1],str8[t2]);
+//            getchar();
+//            getchar();
+                    newzj1=0;
+                    newzj2=0;
+                    while((t1<S7)&&(t2<S8))  //7,8 reverse compare
+                    {
+                        int tt1=0;
+                        int tt2=0;
+                        tt2=t2;
+                        f1=1;
+                        f2=1;
+                        f3=0;
+                        f4=0;
+                        while(str7[t1]!=str8[tt2])
+                        {
+                            tt2++;
+                            f1++;
+                            if(f1>6)
+                            {
+                                f1=0;
+                                break;
+                            }
+                        }
+                        if(f1==0)
+                        {
+                            tt1=t1;
+                            while(str8[t2]!=str7[tt1])
+                            {
+                                tt1++;
+                                f2++;
+                                if(f2>6)
+                                {
+                                    f2=0;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(f1==0&&f2==0)
+                        {
+                            t1+=1;
+                            t2+=1;
+                        }
+                        else
+                        {
+                            if(str7[t1]==str8[tt2]&&f1!=0&&f2==1)
+                            {
+                                T1=t1+1;
+//
+                                while(str7[t1++]==str8[tt2++])
+                                {
+
+
+                                    newzj1++;
+                                    f4++;
+                                }
+                                if(f4<=3)
+                                {
+                                    newzj1-=f4;
+                                    f4=0;
+                                    t1=T1;
+                                    continue;
+                                }
+                                t1-=1;
+                                t2=tt2-1;
+                                continue;
+                            }
+                            if(str7[tt1]==str8[t2]&&f1==0&&f2!=0)
+                            {
+                                T2=t2+1;
+                                while(str7[tt1++]==str8[t2++])
+                                {
+
+                                    newzj1++;
+                                    f3++;
+                                }
+                                if(f3<=3)
+                                {
+                                    newzj1-=f3;
+                                    f3=0;
+                                    t2=T2;
+                                    continue;
+                                }
+//
+                                t1=tt1-1;
+                                t2-=1;
+                            }
+                        }
+                    }
+                    t1=S7/devide;
+                    t2=S8/devide;
+                    while((t1<S7)&&(t2<S8))
+                    {
+                        int tt1=0;
+                        int tt2=0;
+                        tt1=t1;
+                        f1=1;
+                        f2=1;
+                        f3=0;
+                        f4=0;
+                        while(str8[t2]!=str7[tt1])
+                        {
+                            tt1++;
+                            f2++;
+                            if(f2>6)
+                            {
+                                f2=0;
+                                break;
+                            }
+                        }
+                        if(f2==0)
+                        {
+                            tt2=t2;
+                            while(str7[t1]!=str8[tt2])
+                            {
+                                tt2++;
+                                f1++;
+                                if(f1>6)
+                                {
+                                    f1=0;
+                                    break;
+                                }
+                            }
+
+                        }
+                        if(f1==0&&f2==0)
+                        {
+                            t1+=1;
+                            t2+=1;
+                        }
+                        else
+                        {
+                            if(str7[tt1]==str8[t2]&&f2!=0&&f1==1)
+                            {
+                                T2=t2+1;
+//
+                                while(str7[tt1++]==str8[t2++])
+                                {
+
+                                    newzj2++;
+                                    f3++;
+                                }
+                                if(f3<=3)
+                                {
+                                    newzj2-=f3;
+                                    f3=0;
+                                    t2=T2;
+                                    continue;
+                                }
+
+                                t1=tt1-1;
+                                t2-=1;
+                                continue;
+                            }
+
+
+
+                            if(str7[t1]==str8[tt2]&&f2==0&&f1!=0)
+                            {
+                                T1=t1+1;
+
+                                while(str7[t1++]==str8[tt2++])
+                                {
+
+                                    newzj2++;
+                                    f4++;
+                                }
+                                int temp1;
+                                if(f4<=3)
+                                {
+                                    newzj2-=f4;
+                                    f4=0;
+                                    t1=T1;
+                                    continue;
+                                }
+                                t1-=1;
+                                t2=tt2-1;
+                            }
+                        }
+                    }
+                    int sss78=0;
+                    if(newzj1>=s78)
+                    {
+                        newzj1=0;
+                        sss78=newzj2;
+                    }
+                    if(newzj2>=s78)
+                    {
+                        newzj2=0;
+                        sss78=newzj1;
+                    }
+
+                    if(newzj1!=0&&newzj2!=0)
+                        sss78=(newzj1+newzj2)/2;
+                    if(sss78<0)
+                        sss78=0;
+
+                    mix1+=((sss78*1.0)/s78);
+//////////////////                printf("mix1=%f\n",mix1);
+                    devide++;
+                }
+
+                if(mix1>=0.30)
+                {
+                    float minn1=99999999;
+                    int m1=0,m2=0;
+
+                    if(S7>=S8)
+                    {
+                        float a=0,b=0;
+                        for(int i=0,j=S8-4; j<=S7-4; j++,i++) //for(int i=0,j=S8-4; j<=S7-4; j++,i++)
+                        {
+                            m1=0;
+                            m2=0;
+
+                            for(int p=i; p<=j; p++)
+                            {
+                                a=str7[p];
+                                a+=m1;
+                                m1+=1;
+//                        printf("a= %f m1=%d\n",a,m1);
+                                for(int k=0; k<=S8-4; k++)        // for(int k=0; k<=S8-4; k++)
+                                {
+//                            printf("%.2f %.2f\n",str7[p],str8[k]);
+//                            float a,b;
+//                            a=str7[p];
+                                    b=str8[k];
+                                    b+=m2;
+                                    m2+=1;
+//                            if(a>0)
+//                                a=2;
+//                            else if(a<0)
+//                                a=-2;
+//                            else
+//                                a=0;
+//                            if(b>0)
+//                                b=2;
+//                            else if(b<0)
+//                                b=-2;
+//                            else
+//                                b=0;
+                                    dist[p][k]=abs(int(a-b));
+//                            dist[p][k]=(str7[p]-str8[k])*(str7[p]-str8[k]);
+//                             printf("%d \n",dist[p][k]);
+                                }
+                            }
+//                    for(int p=i;p<=j; p++)
+//                    {
+//
+//                        for(int k=0; k<=S8-4; k++)
+//                        {
+//                           printf("%d ",dist[p][k]);
+//                        }
+//                        printf("\n");
+//                    }
+                            for(int p=i; p<=j; p++)
+                                output[p][0]=dist[p][0];
+                            for(int p=i+1; p<=j; p++)
+                                output[p][0]=output[p][0]+output[p-1][0];
+                            for(int q=0; q<=S8-4; q++)
+                                output[i][q]=dist[i][q];
+                            for(int q=1; q<=S8-4; q++)
+                                output[i][q]=output[i][q-1]+output[i][q];
+//                    printf("***\n");
+                            for(int p=i+1; p<=j; p++)
+                            {
+                                for(int q=1; q<=S8-4; q++)
+                                {
+
+                                    output[p][q]=min(min(output[p-1][q-1]+dist[p][q],output[p][q-1]+2*dist[p][q]),output[p-1][q]+2*dist[p][q]);  //鼓励一一对应
+//                    printf("**%d %d %d %d %d\n",output[p][q],output[p-1][q-1],output[p][q-1],output[p-1][q],dist[p][q]);
+                                }
+
+                            }
+//                    printf("~~~~~");
+//                    dfs(j,S8-4,i,0);
+
+//                    dtw2=float(output[i][S8-4])/float(flag+flag2);
+                            minn1=min(float(output[j][S8-4]),minn1);
+//                    printf("%.2f\n",minn1);
+                            memset(dist,0,sizeof(dist));
+                            memset(output,0,sizeof(output));
+                        }
+                    }
+                    else
+                    {
+                        float a=0,b=0;
+                        for(int i=0,j=S7-4; j<=S8-4; j++,i++)
+                        {
+                            m1=0;
+                            m2=0;
+
+                            for(int p=i; p<=j; p++)
+                            {
+                                b=str8[p];
+                                b+=m1;
+                                m1+=1;
+                                for(int k=0; k<=S7-4; k++)
+                                {
+
+//                            float a,b;
+                                    a=str7[k];
+//                            b=str8[p];
+                                    a+=m2;
+                                    m2+=1;
+//                            if(a>0)
+//                                a=2;
+//                            else if(a<0)
+//                                a=-2;
+//                            else
+//                                a=0;
+//                            if(b>0)
+//                                b=2;
+//                            else if(b<0)
+//                                b=-2;
+//                            else
+//                                b=0;
+                                    dist[p][k]=abs(int(a-b));
+//                            printf("%.2f %.2f\n",str7[p],str8[k]);
+//                            dist[p][k]=(str8[p]-str7[k])*(str8[p]-str7[k]);
+//                             printf("%d \n",dist[p][k]);
+                                }
+                            }
+//                    for(int p=i;p<=j; p++)
+//                    {
+//
+//                        for(int k=0; k<=S7-4; k++)
+//                        {
+//                           printf("%d ",dist[p][k]);
+//                        }
+//                        printf("\n");
+//                    }
+                            for(int p=i; p<=j; p++)
+                                output[p][0]=dist[p][0];
+                            for(int p=i+1; p<=j; p++)
+                                output[p][0]=output[p][0]+output[p-1][0];
+                            for(int q=0; q<=S7-4; q++)
+                                output[i][q]=dist[i][q];
+                            for(int q=1; q<=S7-4; q++)
+                                output[i][q]=output[i][q-1]+output[i][q];
+//                        printf("***\n");
+                            for(int p=i+1; p<=j; p++)
+                            {
+                                for(int q=1; q<=S7-4; q++)
+                                {
+
+                                    output[p][q]=min(min(output[p-1][q-1]+dist[p][q],output[p][q-1]+2*dist[p][q]),output[p-1][q]+2*dist[p][q]);  //鼓励一一对应
+//                    printf("**%d %d %d %d %d\n",output[p][q],output[p-1][q-1],output[p][q-1],output[p-1][q],dist[p][q]);
+                                }
+
+                            }
+//                    printf("~~~~~");
+//                    dfs(j,S7-4,i,0);
+
+//                    dtw2=float(output[i][S7-4])/float(flag+flag2);
+                            minn1=min(float(output[j][S7-4]),minn1);
+//                        printf("%.2f\n",minn1);
+                            memset(dist,0,sizeof(dist));
+                            memset(output,0,sizeof(output));
+                        }
+                    }
+//            minnn=1000-minnn;
+//            float minn1;
+//            minn1=minnn;
+//            minn1*=0.001;
+//            printf("*minn1=%.3f\n",minn1);
+                    minn1/=min(S7,S8);  //per
+                    minn1=1-minn1*0.00001;
+                    if(minn1<0)
+                    {
+                        minn1=-minn1;
+                        minn1+=1;
+                    }
+                    minn1*=1000;
+////////////////////                printf("minn1=%f minnn=%f ",minn1,minnn);
+                    //DTW
+                    for(int i=0; i<strlen(str1); i++)
+                    {
+                        for(int j=0; j<strlen(str2); j++)
+                        {
+                            if(str1[i]==str2[j])
+                            {
+                                if(i==0||j==0)
+                                {
+                                    num1[i][j]=1;
+                                }
+                                else
+                                {
+                                    num1[i][j]=num1[i-1][j-1]+1;
+                                }
+                            }
+                            else
+                            {
+                                if(i>0&&j>0)
+                                    num1[i][j]=num1[i-1][j-1];
+                            }
+                            if(num1[i][j]>m)
+                            {
+                                m=num1[i][j];
+
+                                //为连接首尾提供支持
+//                        i2=i;
+//                        j2=j;
+                            }
+                        }
+                    }
+
+
+
+                    for(int i=0; i<strlen(str3); i++)
+                    {
+                        for(int j=0; j<strlen(str4); j++)
+                        {
+                            if((str3[i]==str4[j])&&str3[i]!='*'&&str4[i]!='*')
+                            {
+                                if(i==0||j==0)
+                                {
+                                    num2[i][j]=1;
+                                }
+                                else
+                                {
+                                    num2[i][j]=num2[i-1][j-1]+1;
+                                }
+                            }
+                            else
+                            {
+                                if(i>0&&j>0)
+                                    num2[i][j]=num2[i-1][j-1];
+                            }
+
+                            if(num2[i][j]>n)
+                                n=num2[i][j];
+
+                        }
+                    }
+                    for(int i=0; i<strlen(str5); i++)
+                    {
+                        for(int j=0; j<strlen(str6); j++)
+                        {
+                            if((str5[i]==str6[j])&&str5[i]!='*'&&str6[i]!='*')
+                            {
+                                if(i==0||j==0)
+                                {
+                                    num3[i][j]=1;
+                                }
+                                else
+                                {
+                                    num3[i][j]=num3[i-1][j-1]+1;
+                                }
+                            }
+                            else
+                            {
+                                if(i>0&&j>0)
+                                    num3[i][j]=num3[i-1][j-1];
+                            }
+
+                            if(num3[i][j]>nn)
+                                nn=num3[i][j];
+
+                        }
+                    }
+                    int len1,len2,len3;
+                    len1=strlen(str1);
+                    len2=strlen(str2);
+                    if(len1>len2)
+                    {
+                        len3=len1;
+                    }
+                    else
+                        len3=len2;
+//            printf("m=%d n=%d nn=%d len3=%d\n",m,n,nn,len3);
+//    printf("%.2f,",(m*3.0+n*1.0+nn*10.0)/(3.0*(len3*1.0)));
+////////////////////                printf("minn1*mix1=%f\n",minn1*mix1);
+                    if(second==files2)
+                        fprintf(fp3,"%f\n",(mix1*minn1)*(mix*mix1*(((s7+s8)*1.0)/(2.0*s78))*((ss78*1.0)/(s78*1.0))*(zj*1.0)/(start7*1.0)*(m*4.0+n*1.0+nn*4.0))/(len3*3.0)); //  (mix1*mix*(((s7+s8)*1.0)/(2.0*s78))*((ss78*1.0)/(s78*1.0))*(zj*1.0)/(start7*1.0)*(m*4.0+n*1.0+nn*4.0))/(len3*3.0)
+                    else
+                        fprintf(fp3,"%f,",(mix1*minn1)*(mix*mix1*(((s7+s8)*1.0)/(2.0*s78))*((ss78*1.0)/(s78*1.0))*(zj*1.0)/(start7*1.0)*(m*4.0+n*1.0+nn*4.0))/(len3*3.0));//4 1 4 3  12.14 (mix1*minn1)*(mix*mix1*(((s7+s8)*1.0)/(2.0*s78))*((ss78*1.0)/(s78*1.0))*(zj*1.0)/(start7*1.0)*(m*4.0+n*1.0+nn*4.0))/(len3*3.0)
+
+
+
+
+
+                    fclose(fp1);
+                    fclose(fp2);
+                    fclose(fp3);
+
+
+                }
+                else
+                {
+                    float fl=0;
+                    if(second==files2)
+                        fprintf(fp3,"%f\n",fl); //  (mix1*mix*(((s7+s8)*1.0)/(2.0*s78))*((ss78*1.0)/(s78*1.0))*(zj*1.0)/(start7*1.0)*(m*4.0+n*1.0+nn*4.0))/(len3*3.0)
+                    else
+                        fprintf(fp3,"%f,",fl);//4 1 4 3  12.14 (mix1*minn1)*(mix*mix1*(((s7+s8)*1.0)/(2.0*s78))*((ss78*1.0)/(s78*1.0))*(zj*1.0)/(start7*1.0)*(m*4.0+n*1.0+nn*4.0))/(len3*3.0)
+
+
+
+
+
+                    fclose(fp1);
+                    fclose(fp2);
+                    fclose(fp3);
+                }
+
+            }
+
+        }
+
+
+
+
+
+
+
+        //3
+
+        printf("Step 3 get the result\n");
+
+        FILE *fp1,*fp2,*fp5;
+
+        if((fp1=fopen("..\\Intermediate_process\\cmp_files.txt","w"))==NULL)
+        {
+            printf("error occur!\n");
+            exit(1);
+        }
+//////////        if((fp5=fopen("..\\Intermediate_process\\compare_inf.txt","w"))==NULL)
+//////////        {
+//////////            printf("error occur!\n");
+//////////            exit(1);
+//////////        }
+        long Handle;
+        struct _finddata_t FileInfo_;
+        if((Handle=_findfirst("..\\JPG_UP\\*.jpg",&FileInfo_))==-1L)
+            printf("no find project!\n");
+        else
+        {
+//        fprintf(fp1,"上部文件对应参照表：\n");
+            fprintf(fp1,"%s\n",FileInfo_.name);
+            strcpy(up1[u1++].uname,FileInfo_.name);
+            while(_findnext(Handle,&FileInfo_)==0)
+            {
+                fprintf(fp1,"%s\n",FileInfo_.name);
+                strcpy(up1[u1++].uname,FileInfo_.name);
+            }
+            _findclose(Handle);
+        }
+        if((Handle=_findfirst("..\\JPG_DOWN\\*.jpg",&FileInfo_))==-1L)
+            printf("no find project!\n");
+        else
+        {
+//        fprintf(fp1,"下部文件对应参照表：\n");
+            fprintf(fp1,"%s\n",FileInfo_.name);
+            strcpy(down1[d1++].dname,FileInfo_.name);
+            while(_findnext(Handle,&FileInfo_)==0)
+            {
+                fprintf(fp1,"%s\n",FileInfo_.name);
+                strcpy(down1[d1++].dname,FileInfo_.name);
+//                printf("%s\n",down1[d1-1].dname);
+            }
+            _findclose(Handle);
+        }
+        fclose(fp1);
+
+
+
+        struct temp t[5000];
+        if((fp1=fopen("..\\Intermediate_process\\compare_inf.txt","r"))==NULL)
+        {
+            printf("error occur!\n");
+            exit(1);
+        }
+        if((fp2=fopen("..\\result_inf.xlsx","w"))==NULL)
+        {
+            printf("error occur!\n");
+            exit(1);
+        }
+        int m=0,n=0;
+        int p1,q1;
+        char ch;
+        while(fscanf(fp1,"%f",&num[m][n++])!=EOF)
+        {
+            if((ch=fgetc(fp1))=='\n')
+            {
+                q1=n;
+                n=0;
+                m++;
+                p1=m;
+            }
+//        if(n==110)
+//        {
+//            n=0;
+//            m+=1;
+//        }
+        }
+//    printf("%d %d\n",p1,q1);  //p1=110  q1=330
+
+        for(int i=0; i<p1; i++)
+        {
+            for(int j=0; j<q1/3; j++)
+            {
+//            float aq;
+//            aq=max(max(num[i][j],num[i][j+q1/3]),num[i][j+q1/3*2]);
+////            if(num[i][j]==aq)
+////            {
+////                num[i][j]=num[i][j+q1/3]+num[i][j+q1/3*2];
+////                continue;
+////            }
+////            if(num[i][j+q1/3]==aq)
+////            {
+////                num[i][j]=num[i][j]+num[i][j+q1/3*2];
+////                continue;
+////            }
+////            if(num[i][j+q1/3*2]==aq)
+////            {
+////                num[i][j]=num[i][j]+num[i][j+q1/3];
+////                continue;
+////            }
+
+
+
+                float aq1,aq2,temp;
+                aq1=max(max(num[i][j],num[i][j+q1/3]),num[i][j+q1/3*2]);
+                aq2=min(min(num[i][j],num[i][j+q1/3]),num[i][j+q1/3*2]);
+                if(num[i][j]!=aq1&&num[i][j]!=aq2)
+                    temp=num[i][j];
+                else if(num[i][j+q1/3]!=aq1&&num[i][j+q1/3]!=aq2)
+                    temp=num[i][j+q1/3];
+                else
+                    temp=num[i][j+q1/3*2];
+                num[i][j]=num[i][j]+num[i][j+q1/3]+num[i][j+q1/3*2]+5*temp;
+
+
+
+
+            }
+        }
+//////////////////        int front_n;
+////////////////        printf("front_n=");
+////////////////        scanf("%d",&front_n);
+        for(int i=0; i<p1; i++)
+        {
+            if(i!=0)
+            {
+                printf("\n\n\n%s   compare:  \n\n",up1[i+1].uname);
+                fprintf(fp2,"%s:\t",up1[i+1].uname);
+            }
+            else
+            {
+                printf("%s   compare:  \n\n",up1[i+1].uname);
+                fprintf(fp2,"%s:\t",up1[i+1].uname);
+            }
+            memset(t,0,sizeof(t));
+            for(int j=0; j<q1/3; j++)
+            {
+                t[j].value=num[i][j];
+                t[j].y=j+1;
+            }
+            sort(t,t+q1/3,cmp);
+            for(int s=0; s<front_n; s++)
+            {
+//            if(i+1==t[s].y&&t[s].y>100)
+//                printf("<%d>",s+1);
+                printf("%s %8.3f     \n",down1[t[s].y].dname,t[s].value/15.0);
+                fprintf(fp2,"%s\t%8.3f\t",down1[t[s].y].dname,t[s].value/15.0);
+            }
+
+            fprintf(fp2,"\n");
+            printf("\n");
+        }
+        fclose(fp1);
+        fclose(fp2);
+//        fclose(fp5);
+        break;
+
+
+    }
+
+
+
+
+    case 2:
+    {
+        //3
+
+
+
+
+        int front_n;
+        printf("I want to go back to the top:");
+        scanf("%d",&front_n);
+
+        FILE *fp1,*fp2,*fp5;
+
+
+        //no use
+        if((fp1=fopen("..\\Intermediate_process\\cmp_files.txt","w"))==NULL)
+        {
+            printf("error occur!\n");
+            exit(1);
+        }
+//        if((fp5=fopen("..\\Intermediate_process\\result_inf","w"))==NULL)
+//        {
+//            printf("error occur!\n");
+//            exit(1);
+//        }
+        long Handle;
+        struct _finddata_t FileInfo_;
+        if((Handle=_findfirst("..\\JPG_UP\\*.jpg",&FileInfo_))==-1L)
+            printf("no find project!\n");
+        else
+        {
+//        fprintf(fp1,"上部文件对应参照表：\n");
+            fprintf(fp1,"%s\n",FileInfo_.name);
+            strcpy(up1[u1++].uname,FileInfo_.name);
+            while(_findnext(Handle,&FileInfo_)==0)
+            {
+                fprintf(fp1,"%s\n",FileInfo_.name);
+                strcpy(up1[u1++].uname,FileInfo_.name);
+            }
+            _findclose(Handle);
+        }
+        if((Handle=_findfirst("..\\JPG_DOWN\\*.jpg",&FileInfo_))==-1L)
+            printf("no find project!\n");
+        else
+        {
+//        fprintf(fp1,"下部文件对应参照表：\n");
+            fprintf(fp1,"%s\n",FileInfo_.name);
+            strcpy(down1[d1++].dname,FileInfo_.name);
+            while(_findnext(Handle,&FileInfo_)==0)
+            {
+                fprintf(fp1,"%s\n",FileInfo_.name);
+                strcpy(down1[d1++].dname,FileInfo_.name);
+//                printf("%s\n",down1[d1-1].dname);
+            }
+            _findclose(Handle);
+        }
+        fclose(fp1);
+
+
+
+        struct temp t[5000];
+        if((fp1=fopen("..\\Intermediate_process\\compare_inf.txt","r"))==NULL)
+        {
+            printf("error occur!\n");
+            exit(1);
+        }
+        if((fp2=fopen("..\\result_inf.xlsx","w"))==NULL)
+        {
+            printf("error occur!\n");
+
+
+            exit(1);
+        }
+        int m=0,n=0;
+        int p1,q1;
+        char ch;
+        while(fscanf(fp1,"%f",&num[m][n++])!=EOF)
+        {
+            if((ch=fgetc(fp1))=='\n')
+            {
+                q1=n;
+                n=0;
+                m++;
+                p1=m;
+            }
+//        if(n==110)
+//        {
+//            n=0;
+//            m+=1;
+//        }
+        }
+//    printf("%d %d\n",p1,q1);  //p1=110  q1=330
+
+        for(int i=0; i<p1; i++)
+        {
+            for(int j=0; j<q1/3; j++)
+            {
+//            float aq;
+//            aq=max(max(num[i][j],num[i][j+q1/3]),num[i][j+q1/3*2]);
+////            if(num[i][j]==aq)
+////            {
+////                num[i][j]=num[i][j+q1/3]+num[i][j+q1/3*2];
+////                continue;
+////            }
+////            if(num[i][j+q1/3]==aq)
+////            {
+////                num[i][j]=num[i][j]+num[i][j+q1/3*2];
+////                continue;
+////            }
+////            if(num[i][j+q1/3*2]==aq)
+////            {
+////                num[i][j]=num[i][j]+num[i][j+q1/3];
+////                continue;
+////            }
+
+
+
+                float aq1,aq2,temp;
+                aq1=max(max(num[i][j],num[i][j+q1/3]),num[i][j+q1/3*2]);
+                aq2=min(min(num[i][j],num[i][j+q1/3]),num[i][j+q1/3*2]);
+                if(num[i][j]!=aq1&&num[i][j]!=aq2)
+                    temp=num[i][j];
+                else if(num[i][j+q1/3]!=aq1&&num[i][j+q1/3]!=aq2)
+                    temp=num[i][j+q1/3];
+                else
+                    temp=num[i][j+q1/3*2];
+                num[i][j]=num[i][j]+num[i][j+q1/3]+num[i][j+q1/3*2]+5*temp;
+
+
+
+
+            }
+        }
+//////////////////        int front_n;
+////////////////        printf("front_n=");
+////////////////        scanf("%d",&front_n);
+        for(int i=0; i<p1; i++)
+        {
+            if(i!=0)
+            {
+                printf("\n\n\n%s   compare:  \n\n",up1[i+1].uname);
+                fprintf(fp2,"%s:\t",up1[i+1].uname);
+            }
+            else
+            {
+                printf("%s   compare:  \n\n",up1[i+1].uname);
+                fprintf(fp2,"%s:\t",up1[i+1].uname);
+            }
+            memset(t,0,sizeof(t));
+            for(int j=0; j<q1/3; j++)
+            {
+                t[j].value=num[i][j];
+                t[j].y=j+1;
+            }
+            sort(t,t+q1/3,cmp);
+            for(int s=0; s<front_n; s++)
+            {
+//            if(i+1==t[s].y&&t[s].y>100)
+//                printf("<%d>",s+1);
+                printf("%s %8.3f     \n",down1[t[s].y].dname,t[s].value/15.0);
+                fprintf(fp2,"%s\t%8.3f\t",down1[t[s].y].dname,t[s].value/15.0);
+            }
+
+            fprintf(fp2,"\n");
+            printf("\n");
+        }
+        fclose(fp1);
+        fclose(fp2);
+//        fclose(fp5);
+        break;
+
+
+
+    }
+    }
+}
+
+
+
+
+
+
+
+// int front_n;
+//        printf("I want to go back to the top:");
+//        scanf("%d",&front_n);
+//
+//        FILE *fp1,*fp2,*fp5;
+//
+//
+//        //no use
+//        if((fp1=fopen("..\\Intermediate_process\\cmp_files.txt","w"))==NULL)
+//        {
+//            printf("error occur!\n");
+//            exit(1);
+//        }
+//        if((fp5=fopen("..\\Intermediate_process\\result_inf","w"))==NULL)
+//        {
+//            printf("error occur!\n");
+//            exit(1);
+//        }
+//
+//
+//struct temp t[5000];
+//if((fp1=fopen("..\\Intermediate_process\\compare_inf.txt","r"))==NULL)
+//{
+//    printf("error occur!\n");
+//    exit(1);
+//}
+//if((fp2=fopen("..\\result_inf.txt","w"))==NULL)
+//{
+//    printf("error occur!\n");
+//    exit(1);
+//}
+//int m=0,n=0;
+//int p1,q1;
+//char ch;
+//while(fscanf(fp1,"%f",&num[m][n++])!=EOF)
+//{
+//    if((ch=fgetc(fp1))=='\n')
+//    {
+//        q1=n;
+//        n=0;
+//        m++;
+//        p1=m;
+//    }
+////        if(n==110)
+////        {
+////            n=0;
+////            m+=1;
+////        }
+//}
+////    printf("%d %d\n",p1,q1);  //p1=110  q1=330
+//
+//for(int i=0; i<p1; i++)
+//{
+//    for(int j=0; j<q1/3; j++)
+//    {
+////            float aq;
+////            aq=max(max(num[i][j],num[i][j+q1/3]),num[i][j+q1/3*2]);
+//////            if(num[i][j]==aq)
+//////            {
+//////                num[i][j]=num[i][j+q1/3]+num[i][j+q1/3*2];
+//////                continue;
+//////            }
+//////            if(num[i][j+q1/3]==aq)
+//////            {
+//////                num[i][j]=num[i][j]+num[i][j+q1/3*2];
+//////                continue;
+//////            }
+//////            if(num[i][j+q1/3*2]==aq)
+//////            {
+//////                num[i][j]=num[i][j]+num[i][j+q1/3];
+//////                continue;
+//////            }
+//
+//
+//
+//        float aq1,aq2,temp;
+//        aq1=max(max(num[i][j],num[i][j+q1/3]),num[i][j+q1/3*2]);
+//        aq2=min(min(num[i][j],num[i][j+q1/3]),num[i][j+q1/3*2]);
+//        if(num[i][j]!=aq1&&num[i][j]!=aq2)
+//            temp=num[i][j];
+//        else if(num[i][j+q1/3]!=aq1&&num[i][j+q1/3]!=aq2)
+//            temp=num[i][j+q1/3];
+//        else
+//            temp=num[i][j+q1/3*2];
+//        num[i][j]=num[i][j]+num[i][j+q1/3]+num[i][j+q1/3*2]+5*temp;
+//
+//
+//
+//
+//    }
+//}
+////////////////////        int front_n;
+//////////////////        printf("front_n=");
+//////////////////        scanf("%d",&front_n);
+//for(int i=0; i<p1; i++)
+//{
+//    if(i!=0)
+//    {
+//        printf("\n\n\n%s   compare:  \n\n",up1[i+1].uname);
+//        fprintf(fp2,"\n\n\n%s   compare:  \n\n",up1[i+1].uname);
+//    }
+//    else
+//    {
+//        printf("%s   compare:  \n\n",up1[i+1].uname);
+//        fprintf(fp2,"%s   compare:  \n\n",up1[i+1].uname);
+//    }
+//    memset(t,0,sizeof(t));
+//    for(int j=0; j<q1/3; j++)
+//    {
+//        t[j].value=num[i][j];
+//        t[j].y=j+1;
+//    }
+//    sort(t,t+q1/3,cmp);
+//    for(int s=0; s<front_n; s++)
+//    {
+////            if(i+1==t[s].y&&t[s].y>100)
+////                printf("<%d>",s+1);
+//        printf("%s %8.3f     \n",down1[t[s].y].dname,t[s].value);
+//        fprintf(fp2,"%s %8.3f     \n",down1[t[s].y].dname,t[s].value);
+//    }
+//    fprintf(fp2,"\n");
+//    printf("\n");
+//}
+//fclose(fp1);
+//fclose(fp2);
+////        fclose(fp5);
+//break;
+//
+//
+//
+//
+//
+
+
+
+
+
+
+
+
+
+
+
+
