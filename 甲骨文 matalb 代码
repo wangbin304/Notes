@@ -1,0 +1,559 @@
+pre_compare
+
+
+
+function pre_compare
+upfolder = '..\JPG_UP\';
+downfolder = '..\JPG_DOWN\';
+% saveupfolder = '..\Intermediate_process\UPP\';
+% savedownfolder='..\Intermediate_process\DOWNN\';
+%
+% imrotateupfolder='..\Intermediate_process\imrotateupfolder.txt';
+% imrotatedownfolder='..\Intermediate_process\imrotatedownfolder.txt';
+% fid1=fopen(imrotateupfolder,'a');
+% fid2=fopen(imrotatedownfolder,'a');
+
+pre_cmp='..\Intermediate_process\pre_cmp.txt';
+fid=fopen(pre_cmp,'a');
+
+%
+% try
+%     mkdir(saveupfolder);
+% end
+% try
+%     mkdir(savedownfolder);
+% end
+
+
+
+up=dir([upfolder,'*.png']);   %.png   substitute .jpg
+down=dir([downfolder,'*.png']);
+
+
+
+
+for i=1:numel(up)
+    oldname=up(i).name;
+    I_i=imread([upfolder,oldname]);
+    %% 利用绿线
+    [x_i,y_i]=find(I_i(:,:,1)==0);
+    z_i=median(y_i);
+    [x1_i,y1_i,z1_i]=size(I_i);
+    flag1=0;
+    if z_i>=y1_i/2
+        %         fprintf(fid1,'%d,',i);
+        I_i=imrotate(I_i,180,'nearest','loose');
+        z_i=y1_i-z_i;
+        flag1=1;
+    end
+    
+    [uysize_i,uxsize_i,uz_i]=size(I_i);
+    ub_i=ones(uysize_i,uxsize_i);
+    I1_i=rgb2lab(I_i);
+    ub_i(I1_i(:,:,2)>=10)=0;
+    ub1_i=ones(uysize_i,uxsize_i);
+   ub1_i(ub_i(:,z_i+50:uxsize_i)<=0)=0;  %ub1_i(ub_i(:,z_i+50:uxsize_i)<=0)=0;
+    
+    ub2_i=ones(uysize_i+1000,uxsize_i+1000);
+    
+    for j1_i=1:uxsize_i
+        for i1_i=1:uysize_i
+            if ub1_i(i1_i,j1_i)==0
+                ub2_i(i1_i+500,j1_i+500)=0;
+            end
+        end
+    end
+    
+    %     [xx_i,yy_i]=find(ub2_i(:,:)==0);
+    sas=0;
+    
+    
+    
+    for j=1:numel(down)
+        oldname=down(j).name;
+        I_j=imread([downfolder,oldname]);
+        
+        flag2=0;
+        
+        % 利用绿线
+        [x_j,y_j]=find(I_j(:,:,1)==0);
+        z_j=median(y_j);
+        [x1_j,y1_j,z1_j]=size(I_j);
+        
+        if z_j>=y1_j/2
+            %         fprintf(fid2,'%d,',j);
+            I_j=imrotate(I_j,180,'nearest','loose');
+            z_j=y1_j-z_j;
+            flag2=1;
+        end
+        
+        if flag1~=flag2
+            sas=0;
+            fprintf(fid,'%d,',sas);
+            continue;
+        end
+        
+        num=[];
+        t=[];
+%         yy=[];
+        %imrotate
+        for shift=-3:3:3
+            for jj=-5:5:5
+                I_jj=imrotate(I_j,jj,'nearest','loose');
+                [uysize_j,uxsize_j,uz_j]=size(I_jj);
+                ub_j=ones(uysize_j,uxsize_j);
+                I1_j=rgb2lab(I_jj);
+                ub_j(I1_j(:,:,2)>=10)=0;
+                ub1_j=ones(uysize_j,uxsize_j);
+                ub1_j(ub_j(:,z_j+50:uxsize_j)<=0)=0;  % ub1_j(ub_j(:,z_j+50:uxsize_j)<=0)=0;
+                ub2_j=ones(uysize_j+uysize_i+1000,uxsize_j+uxsize_i+1000);
+                
+                
+                
+                for j1_j=1:uxsize_j
+                    for i1_j=1:uysize_j
+                        if ub1_j(i1_j,j1_j)==0
+                            %                 z_i-z_j
+                            ub2_j(i1_j+500+uysize_i,j1_j+500+round(z_i-z_j)+shift)=0;
+                        end
+                    end
+                end
+                
+                %     ub3_j=ones(uysize_j+uysize_i+200,uxsize_j+uxsize_i+200);
+                %
+                %     for j1_j=1:uxsize_j
+                %         for i1_j=1:uysize_j
+                %             if ub2_j(i1_j,j1_j)==0
+                %                 ub3_j(i1_j+uysize_i,round(j1_j+z_i-z_j))=0;
+                %             end
+                %         end
+                %     end
+                %
+                
+                %         [xx_j,yy_j]=find(ub2_j(:,:)==0);
+                %         i_len=length(yy_i);
+                %         j_len=length(yy_j);
+                %         i_len
+                %         j_len
+                t1=0;
+                t2=0;
+                t=[];
+                num1=0;
+                num2=0;
+%                 num3=0;
+                
+                for p1=1:uxsize_i+1000
+                    t1=0;
+                    t2=0;
+                    for q1=1:uysize_i+1000
+                        if  ub2_i(q1,p1)==0
+                            t1=q1;
+                            break;
+                        end
+                    end
+                    for q2=1:uysize_j+uysize_i+1000
+                        if ub2_j(q2,p1)==0
+                            t2=q2;
+                            break;
+                        end
+                    end
+                    if t1~=0&&t2~=0
+                        t=[t,t2-t1];
+                    end
+                    
+                end
+                %         tabulate(t>=mode(t)-10&t<=mode(t)+30)
+                %         [M,F,C]=mode(t);
+                %         M
+                
+                if length(t)~=0&&length(t)>=100
+                    %                     length(t)
+                    M=mode(t(1:round(length(t)/3)));
+                    F=mode(t(round(length(t)/3*2):length(t)));
+                    C=mode(t(round(length(t)/3:round(length(t)/3*2))));
+%                      M=round(mean(t(1:round(length(t)/3))));
+%                     F=round(mean(t(round(length(t)/3*2):length(t))));
+%                     C=round(mean(t(round(length(t)/3:round(length(t)/3*2)))));
+                    %                     t
+                    
+                    num1=min(min(abs(M-F),abs(F-C)),abs(M-C));
+                    num2=M+F+C-max(max(M,F),C)-min(min(M,F),C)-min(min(M,F),C);
+                    %             num.y=M+F+C-max(max(M,F),C)-min(min(M,F),C)-min(min(M,F),C);
+                    
+%                     t
+%                     num3=mode(t)-min(min(M,F),C);%abs(round((M+F+C-max(max(M,F),C))/2)-round(mean(t)))
+                   
+                    num=[num,num1+num2];
+%                    xx=sum(t<=mean(t)-20);
+%                     xx=sum(t>=max(t)-15)/length(t);
+%                     yy=[yy,xx];
+                    
+                    
+                    %                 else
+                    %                     sas=0;
+                    %                     fprintf(fid,'%d,',sas);
+                    %                     break;
+                end
+                %         (min(t)+max(t))/2
+                %         mode(t)
+            end
+            %             if t==NaN|length(t)<=100
+            %                 break;
+            %             end
+        end
+        
+        %         if t==NaN|length(t)<=100
+        %             continue;
+        %         end
+%                        num
+%                        min(num)
+%                        length(num)
+%                        yy
+%                        mean(yy)
+%                        length(yy)
+        if (min(num)>=30)
+            sas=0;
+            fprintf(fid,'%d,',sas);
+        else if length(num)==0
+                sas=0;
+                fprintf(fid,'%d,',sas);
+            else
+                sas=1;
+               
+                fprintf(fid,'%d,',min(num)+1);
+            end
+        end
+      
+    end
+    fprintf(fid,'\n');
+    
+    
+end
+
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+matlab_c
+
+
+
+
+
+
+upfolder = '..\JPG_UP\';
+downfolder = '..\JPG_DOWN\';
+saveupfolder = '..\Intermediate_process\UPP\';
+savedownfolder='..\Intermediate_process\DOWNN\';
+
+imrotateupfolder='..\Intermediate_process\imrotateupfolder.txt';
+imrotatedownfolder='..\Intermediate_process\imrotatedownfolder.txt';
+% pre_cmp='..\Intermediate_process\pre_cmp.txt';
+
+
+
+fid1=fopen(imrotateupfolder,'a');
+fid2=fopen(imrotatedownfolder,'a');
+
+
+
+
+try
+    mkdir(saveupfolder);
+end
+try
+    mkdir(savedownfolder);
+end
+
+
+    
+ up=dir([upfolder,'*.png']);   %.png   substitute .jpg
+ down=dir([downfolder,'*.png']);
+
+pre_compare
+
+for i=1:numel(up)
+    oldname=up(i).name;
+    I=imread([upfolder,oldname]);
+    
+    %% 利用绿线
+    [x,y]=find(I(:,:,1)==0);
+    z=median(y);
+ 
+    [x1,y1,z1]=size(I);
+    
+    if z>y1/2
+        fprintf(fid1,'%d,',i);
+        I=imrotate(I,180,'nearest','loose');
+        z=y1-z;
+    end
+        
+    [uysize,uxsize,uz]=size(I);
+    ub=ones(uysize,uxsize);
+    I1=rgb2lab(I);
+    ub(I1(:,:,2)>=10)=0;
+    ub1=ones(uysize,uxsize);
+    ub1(ub(:,z+50:uxsize)<=0)=0;  %ub1(ub(:,z+round(uxsize/3):uxsize)<=0)=0;
+%     imshow(ub1);
+    ub2=ones(uysize+100,uxsize+100);
+
+    for j1=1:uxsize
+        for i1=1:uysize
+            if ub1(i1,j1)==0
+                ub2(i1+50,j1+50)=0;
+            end
+        end
+    end
+%      imshow(ub2);
+    
+    
+%     I1=rgb2lab(I);
+%     [uysize,uxsize,uz]=size(I1);
+%     ub=ones(uysize,uxsize);
+%     ub(I1(:,:,2)>=10)=0;  %ub(I1(:,:,2)>=15)=0;
+    newname=strcat(num2str(i),'.txt');
+    dlmwrite([saveupfolder,newname],ub2);
+end  
+  
+ 
+
+ for i=1:numel(down)
+    oldname=down(i).name;
+    I=imread([downfolder,oldname]);
+    
+     % 利用绿线
+    [x,y]=find(I(:,:,1)==0);
+    z=median(y);
+ 
+    [x1,y1,z1]=size(I);
+   
+    if z>y1/2
+        fprintf(fid2,'%d,',i);
+        I=imrotate(I,180,'nearest','loose');
+        z=y1-z;
+    end
+        
+    [uysize,uxsize,uz]=size(I);
+    ub=ones(uysize,uxsize);
+    I1=rgb2lab(I);
+    ub(I1(:,:,2)>=10)=0;
+    ub1=ones(uysize,uxsize);
+    ub1(ub(:,z+50:uxsize)<=0)=0; %ub1(ub(:,z+round(uxsize/3):uxsize)<=0)=0;
+    %imshow(ub1);
+    ub2=ones(uysize+100,uxsize+100);
+
+    for i1=1:uysize
+        for j1=1:uxsize
+            if ub1(i1,j1)==0
+                ub2(i1+50,j1+50)=0;
+            end
+        end
+    end
+%     imshow(ub2);
+    
+    
+%     I1=rgb2lab(I);
+%     [uysize,uxsize,uz]=size(I1);
+%     ub=ones(uysize,uxsize);
+%     ub(I1(:,:,2)>=10)=0; %ub(I1(:,:,2)>=15)=0;    >=10 六个1
+    newname=strcat(num2str(i),'.txt');
+    dlmwrite([savedownfolder,newname],ub2);
+ end
+
+
+ 
+%   %旋转的图像
+% for i=1:numel(down)
+%     oldname=down(i).name;
+%     I=imread([downfolder,oldname]);
+%     
+%      %% 利用绿线
+%     [x,y]=find(I(:,:,1)==0);
+%     z=median(y);
+%  
+%     [x1,y1,z1]=size(I);
+%     if z>y1/2
+%         I=imrotate(I,180,'nearest','loose');
+%         z=y1-z;
+%     end
+%         
+%     [uysize,uxsize,uz]=size(I);
+%     ub=ones(uysize,uxsize);
+%     I1=rgb2lab(I);
+%     ub(I1(:,:,2)>=10)=0;
+%     ub1=ones(uysize,uxsize);
+%     ub1(ub(:,z+50:uxsize)<=0)=0;
+%     %imshow(ub1);
+%     ub2=ones(uysize+100,uxsize+100);
+% 
+%     for i1=1:uysize
+%         for j1=1:uxsize
+%             if ub1(i1,j1)==0
+%                 ub2(i1+50,j1+50)=0;
+%             end
+%         end
+%     end
+% %      imshow(ub2);
+%     
+% %     I1=rgb2lab(I);
+%     ub2=imcomplement(ub2);
+%     I2=imrotate(ub2,-10,'nearest','loose');
+%     I2=imcomplement(I2);
+% %     [uysize,uxsize,uz]=size(I2);
+% %     ub=ones(uysize,uxsize);
+% %     ub(I2(:,:)>=10)=0;  %ub(I1(:,:,2)>=15)=0;
+%     newname=strcat(num2str(i+length(down)),'.txt');
+%     dlmwrite([savedownfolder,newname],I2);
+% %     imshow(I2);
+%   end
+%   
+%    for i=1:numel(down)
+%     oldname=down(i).name;
+%     I=imread([downfolder,oldname]);
+%     
+%      %% 利用绿线
+%     [x,y]=find(I(:,:,1)==0);
+%     z=median(y);
+%  
+%     [x1,y1,z1]=size(I);
+%     if z>y1/2
+%         I=imrotate(I,180,'nearest','loose');
+%         z=y1-z;
+%     end
+%         
+%     [uysize,uxsize,uz]=size(I);
+%     ub=ones(uysize,uxsize);
+%     I1=rgb2lab(I);
+%     ub(I1(:,:,2)>=10)=0;
+%     ub1=ones(uysize,uxsize);
+%     ub1(ub(:,z+50:uxsize)<=0)=0;
+%     %imshow(ub1);
+%     ub2=ones(uysize+100,uxsize+100);
+% 
+%     for i1=1:uysize
+%         for j1=1:uxsize
+%             if ub1(i1,j1)==0
+%                 ub2(i1+50,j1+50)=0;
+%             end
+%         end
+%     end
+% %      imshow(ub2);
+%     
+% %     I1=rgb2lab(I);
+%     ub2=imcomplement(ub2);
+%     I3=imrotate(ub2,10,'nearest','loose');
+%     I3=imcomplement(I3);
+% %     [uysize,uxsize,uz]=size(I3);
+% %     ub=ones(uysize,uxsize);
+% %     ub(I3(:,:)>=10)=0;  %ub(I1(:,:,2)>=15)=0;
+%       newname=strcat(num2str(i+2*length(down)),'.txt');
+%     dlmwrite([savedownfolder,newname],I3);
+% %     imshow(I3);
+%    end
+% 
+
+
+
+
+
+
+
+
+
+
+
+
+% % upfolder = 'D:\Documents\wb\20191021\UP\';
+% % downfolder = 'D:\Documents\wb\20191021\DOWN\';
+% % saveupfolder = 'D:\Documents\wb\20191021\UPP\';
+% % savedownfolder='D:\Documents\wb\20191021\DOWNN\'
+% 
+% upfolder = '..\JPG_UP\';
+% downfolder = '..\JPG_DOWN\';
+% saveupfolder = '..\Intermediate_process\UPP\';
+% savedownfolder='..\Intermediate_process\DOWNN\';
+% 
+% try
+%     mkdir(saveupfolder);
+% end
+% try
+%     mkdir(savedownfolder);
+% end
+% up=dir([upfolder,'*.png']);   %.png   substitute .jpg
+% down=dir([downfolder,'*.png']);
+% 
+% 
+% 
+% 
+% for i=1:numel(up)
+%     oldname=up(i).name;
+%     I=imread([upfolder,oldname]);
+%     I1=rgb2lab(I);
+%     [uysize,uxsize,uz]=size(I1);
+%     ub=ones(uysize,uxsize);
+%     ub(I1(:,:,2)>=10)=0;  %ub(I1(:,:,2)>=15)=0;
+%     newname=strcat(num2str(i),'.txt');
+%     dlmwrite([saveupfolder,newname],ub);
+% end  
+%   
+%  
+% 
+%  for i=1:numel(down)
+%     oldname=down(i).name;
+%     I=imread([downfolder,oldname]);
+%     I1=rgb2lab(I);
+%     [uysize,uxsize,uz]=size(I1);
+%     ub=ones(uysize,uxsize);
+%     ub(I1(:,:,2)>=10)=0; %ub(I1(:,:,2)>=15)=0;    >=10 六个1
+%     newname=strcat(num2str(i),'.txt');
+%     dlmwrite([savedownfolder,newname],ub);
+% end
+% 
+%   %旋转的图像
+% for i=1:numel(down)
+%     oldname=down(i).name;
+%     I=imread([downfolder,oldname]);
+%     I1=rgb2lab(I);
+%     I2=imrotate(I1,-10,'nearest','loose');
+%     [uysize,uxsize,uz]=size(I2);
+%     ub=ones(uysize,uxsize);
+%     ub(I2(:,:,2)>=10)=0;  %ub(I1(:,:,2)>=15)=0;
+%     newname=strcat(num2str(i+length(down)),'.txt');
+%     dlmwrite([savedownfolder,newname],ub);
+%   end
+%   
+%    for i=1:numel(down)
+%     oldname=down(i).name;
+%     I=imread([downfolder,oldname]);
+%     I1=rgb2lab(I);
+%     I3=imrotate(I1,10,'nearest','loose');
+%     [uysize,uxsize,uz]=size(I3);
+%     ub=ones(uysize,uxsize);
+%     ub(I3(:,:,2)>=10)=0;  %ub(I1(:,:,2)>=15)=0;
+%       newname=strcat(num2str(i+2*length(down)),'.txt');
+%     dlmwrite([savedownfolder,newname],ub);
+%    end
+
+% Process='..\Intermediate'
+% if(exist(Process))
+%     delete(Process);
+% end
+
+
+
+
