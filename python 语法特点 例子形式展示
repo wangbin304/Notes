@@ -1,0 +1,19 @@
+1） cv2.split(img)  返回的是 b,g,r  并不是r,g,b   和matalb中rgb图像的一二三通道正好相反
+opencv读取图像为b,g,r方法,比如 
+ 
+img = cv2.imread("xx.jpg") 
+cv2.imshow("xx",img) 
+ 
+展示的结果是正常的: 
+ 
+但是此时读取到的img已经为bgr方式了,如果我们再用其他使用rgb方式读取的函数进行读取时就会出错,比如我用plt对图像进行显示,效果如下: 
+ 
+因为plt函数是rgb方式读取的,所以会出错.这时我们可以手动改变img的通道顺序,如下: 
+ 
+b,g,r = cv2.split(img) 
+img_rgb = cv2.merge([r,g,b]) 
+plt.figure() 
+plt.imshow(img_rgb) 
+plt.show() 
+ 
+这时img_rgb就是rgb顺序的了.那么这时再用cv2.imshow()显示出来,rgb错误。
