@@ -26,3 +26,16 @@ import os
 os.system('start "" /d "C:\Windows" "regedit.exe"')
 
 这个功能实现打开C:\Windows下的注册表regedit.exe可执行文件。
+
+
+
+
+3）注意：
+I_i = cv_imread(data_i)
+
+I_ii=I_i 
+或者
+B,G,R=cv2.split(I_i)
+I_ii=cv2.merge(R,G,B)
+
+得到的第二个是正确的。
