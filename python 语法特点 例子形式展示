@@ -17,3 +17,12 @@ plt.imshow(img_rgb)
 plt.show() 
  
 这时img_rgb就是rgb顺序的了.那么这时再用cv2.imshow()显示出来,rgb错误。
+
+
+
+2）python脚本，python命令打开某个可执行文件
+                                                                        
+import os
+os.system('start "" /d "C:\Windows" "regedit.exe"')
+
+这个功能实现打开C:\Windows下的注册表regedit.exe可执行文件。
